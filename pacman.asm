@@ -6,6 +6,20 @@ BITS 16
 ;;;;;;;;;;;;;;
 stacksize       EQU 0200h
 
+; starting address of video memory
+
+videobase				EQU 0a000h
+
+; some colors
+
+black						EQU 0
+green						EQU 00110000b
+blue						EQU 00001001b
+red							EQU 00000100b
+white						EQU 00001111b
+grey						EQU 00000111b
+yellow					EQU 00001110b
+transparent			EQU 11111111b
 
 ;;;;;;;;;;;;;;
 ; DATA AND STACK SEGMENTS
@@ -24,6 +38,7 @@ stacktop:
 segment mydata data
 	oldintseg resw 1
 	oldintoff resw 1
+	oldvideomode resw 1
 	pressesc resw 1
 	foo	resw	1
 	
@@ -64,18 +79,19 @@ KeybInt:
 	    ;something here later
 
 .kbread:
-        in      al,61h          ; Send acknowledgment without
-        or      al,10000000b    ; modifying the other bits.
-        out     61h,al          ;                            
-        and     al,01111111b    ;                            
-        out     61h,al          ;                            
-        mov     al,20h          ; Send End-of-Interrupt signal 
-        out     20h,al          ;                              
-        sti                     ; Enable interrupts again
+        in      al,61h        ; Send acknowledgment without
+        or      al,10000000b  ; modifying the other bits.
+        out     61h,al        ;                            
+        and     al,01111111b  ;                            
+        out     61h,al        ;                            
+        mov     al,20h        ; Send End-of-Interrupt signal 
+        out     20h,al        ;                              
+        sti                   ; Enable interrupts again
         pop     ax		
-   	    pop 	ds       		; Regain the ds,ax from stack
+   	    pop 	ds       				; Regain the ds,ax from stack
         iret	                ; Return from interrupt
 		
+
 
 ..start:
 		
@@ -87,9 +103,9 @@ KeybInt:
 	
 	mov ah,35h
 	mov al,9
-	int 21h								;Vanhat arvot talteen -> es:bx
-	mov [oldintseg], es
-	mov [oldintoff], bx
+	int 21h											;Vanhat arvot talteen -> es:bx
+	mov [oldintseg],es
+	mov [oldintoff],bx
 	
 	push ds
 	mov dx,KeybInt
@@ -97,10 +113,27 @@ KeybInt:
 	mov ds,bx
 	mov al,9
 	mov ah,25h
-	int 21h								;Asetetaan oma keyboard interrupt
+	int 21h											;Asetetaan oma keyboard interrupt
 	pop ds
 	
+	mov ah,0fh
+	int 10h											;Haetaan nykyinen videomode
+	mov [oldvideomode],ah
+	
+	mov ah,00h
+	mov al,13h
+	int 10h											;Asetetaan uusi videomode
+	
+	
 .mainloop:
+
+	mov ax,videobase
+	mov es,ax										;move video memory address to ESC
+	mov di,0										;move the desired offset address to DI
+	mov byte[es:di], blue				;move the constant 'blue' to the video memroy at offset DI
+	inc di											;inc offset
+	mov byte[es:di],white				;paint another pixel
+	
 	cmp word [pressesc],1
 	jne .mainloop
 	
@@ -111,7 +144,12 @@ KeybInt:
 	mov ds,bx
 	mov al,9
 	mov ah,25h
-	int 21h								;Vanhat arvot takas
+	int 21h											;Vanhat arvot takas
+	
+	mov word dx, [oldvideomode]
+	mov ah,00h
+	mov al,13h
+	int 10h											;Vanha videomode takas
 	
 	mov	al, 0
 	mov     ah, 4ch
