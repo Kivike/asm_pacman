@@ -24,6 +24,7 @@ stacktop:
 segment mydata data
 	oldintseg resw 1
 	oldintoff resw 1
+	pressesc resw 1
 	foo	resw	1
 	
 
@@ -75,11 +76,7 @@ KeybInt:
    	    pop 	ds       		; Regain the ds,ax from stack
         iret	                ; Return from interrupt
 		
-donothing:			
 
-	mov	 word [foo], 0	
-	ret
-	
 ..start:
 		
 	mov ah,35h
@@ -88,12 +85,23 @@ donothing:
 	mov [oldintseg], es
 	mov [oldintoff], bx
 	
-
+	push ds
+	mov dx,KeybInt
+	mov bx,mycode
+	mov ds,bx
+	mov al,9
+	mov ah,25h
+	int 21h								;Asetetaan oma keyboard interrupt
+	pop ds
+	
+.mainloop:
+	cmp word [pressesc],1
+	jne .mainloop
 	
 	
 .dosexit:
-	mov dx, [oldintoff]
-	mov bx, [oldintseg]
+	mov word dx, [oldintoff]
+	mov word bx, [oldintseg]
 	mov ds,bx
 	mov al,9
 	mov ah,25h
