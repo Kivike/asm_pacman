@@ -79,6 +79,12 @@ KeybInt:
 
 ..start:
 		
+	mov ax, mydata
+	mov ds, ax
+	mov ax, mystack
+	mov ss, ax
+	mov sp, stacktop
+	
 	mov ah,35h
 	mov al,9
 	int 21h								;Vanhat arvot talteen -> es:bx
