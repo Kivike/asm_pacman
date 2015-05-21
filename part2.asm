@@ -36,7 +36,7 @@ segment mystack stack
 stacktop:	
 	
 segment mydata data
-	oldintseg resw 1
+	oldintseg resw 1
 	oldintoff resw 1
 	oldvideomode resw 1
 	pressesc resw 1
@@ -92,6 +92,56 @@ KeybInt:
         iret	                ; Return from interrupt
 		
 
+
+copybackground:
+	push 
+	pusha
+	;Pointers
+	mov word si, 0
+	mov word di, 0
+	mov cx,64000
+
+	;Segment registers to correct locations
+	mov ax,memscreen						; Destination segment
+	mov es,ax
+	mov ax,background						; Source segment
+	mov ds,ax
+	
+	;REPEAT COPY!
+	rep movsb										; Move byte at address ds:si to address es:di
+	popa
+	pop ds
+	ret
+
+
+	
+drawPacman:
+
+copymemscreen:
+	push 
+	pusha
+	;Pointers
+	mov word si, 0
+	mov word di, 0
+	mov cx,64000
+
+	;Segment registers to correct locations
+	mov ax,videobase					; Destination segment
+	mov es,ax
+	mov ax,memscreen						; Source segment
+	mov ds,ax
+	
+	;REPEAT COPY!
+	rep movsb										; Move byte at address ds:si to address es:di
+	popa
+	pop ds
+	ret
+
+draw:
+	call copybackground
+	call drawPacman
+	call copymemscreen
+	
 ..start:
 		
 	mov ax, mydata
@@ -107,8 +157,8 @@ KeybInt:
 	mov [oldintoff],bx
 	
 	push ds
-	mov dx,KeybInt
-	mov bx,mycode
+	mov dx,KeybInt							; Oman keyboard interruptin alkuaddress
+	mov bx,mycode								
 	mov ds,bx
 	mov al,9
 	mov ah,25h
@@ -129,7 +179,7 @@ KeybInt:
 	mov ax,videobase
 	mov es,ax										;move video memory address to ESC
 	mov di,0										;move the desired offset address to DI
-	mov byte[es:di], blue				;move the constant 'blue' to the video memroy at offset DI
+	mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
 	inc di											;inc offset
 	mov byte[es:di],white				;paint another pixel
 	
