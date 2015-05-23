@@ -21,6 +21,8 @@ grey						EQU 00000111b
 yellow					EQU 00001110b
 transparent			EQU 11111111b
 
+scrwidth EQU 320
+
 ;;;;;;;;;;;;;;
 ; DATA AND STACK SEGMENTS
 ;;;;;;;;;;;;;;
@@ -93,8 +95,50 @@ KeybInt:
 		
 
 
+
+; takeInput:
+ 
+	; mov ah, 9                    ;DOS: print string
+	; int 21h
+ 
+	; mov	ah, 1					;DOS: get character
+ 	; int	21h
+ 	; or	al, 20h					;to lowercase
+ 
+ ; ; Check keypresses and change the right text
+	; cmp al, 'w'					
+		; je Up					
+
+ 	; cmp	al, 'a'					
+		; je Left					
+	
+ 	; cmp	al, 's'					
+		; je Down
+	
+	; cmp al, 'd'					
+		; je Right		
+
+ 	; jnz	takeInput
+ 
+ 
+; Up: 
+ ; mov dx, up
+ ; je  takeInput
+
+; Left:
+ ; mov dx, left
+ ; je  takeInput
+
+; Down:
+ ; mov dx, down
+ ; je  takeInput
+ 
+; Right:
+ ; mov dx, right
+ ; je  takeInput
+ 
 copybackground:
-	push 
+	push ds
 	pusha
 	;Pointers
 	mov word si, 0
@@ -112,13 +156,13 @@ copybackground:
 	popa
 	pop ds
 	ret
-
-
+	
 	
 drawPacman:
-
+	ret
+	
 copymemscreen:
-	push 
+	push ds
 	pusha
 	;Pointers
 	mov word si, 0
@@ -137,10 +181,38 @@ copymemscreen:
 	pop ds
 	ret
 
+initbackground:
+	mov cx,0
+	
+drawrow:
+	cmp cx,150
+	je drawrowdone
+	mov bx,0
+
+drawpixel:
+	mov di,bx
+	mov byte[es:di],blue
+	
+	cmp bx,10
+	je drawpixeldone
+	inc bx
+	jmp drawpixel
+	
+	
+drawpixeldone:
+  inc cx
+	jmp drawrow
+	
+drawrowdone:
+	mov [background],es
+	ret
+	
+
 draw:
 	call copybackground
 	call drawPacman
 	call copymemscreen
+	ret
 	
 ..start:
 		
@@ -173,59 +245,22 @@ draw:
 	mov al,13h
 	int 10h											;Asetetaan uusi videomode
 	
+	call initbackground
 	
 .mainloop:
 
-	mov ax,videobase
-	mov es,ax										;move video memory address to ESC
-	mov di,0										;move the desired offset address to DI
-	mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
-	inc di											;inc offset
-	mov byte[es:di],white				;paint another pixel
+	call draw
+	
+	;mov ax,videobase
+	;mov es,ax										;move video memory address to ESC
+	;mov di,0										;move the desired offset address to DI
+	;mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
+	;inc di											;inc offset
+	;mov byte[es:di],white				;paint another pixel
 	
 	cmp word [pressesc],1
 	jne .mainloop
 
-takeInput:
- 
-	mov ah, 9                    ;DOS: print string
-	int 21h
- 
-	mov	ah, 1					;DOS: get character
- 	int	21h
- 	or	al, 20h					;to lowercase
- 
- ; Check keypresses and change the right text
-	cmp al, 'w'					
-		je Up					
-
- 	cmp	al, 'a'					
-		je Left					
-	
- 	cmp	al, 's'					
-		je Down
-	
-	cmp al, 'd'					
-		je Right		
-
- 	jnz	takeInput
- 
- 
- Up: 
-	 mov dx, up
-	 je  takeInput
- 
- Left:
-	 mov dx, left
-	 je  takeInput
- 
- Down:
-	 mov dx, down
-	 je  takeInput
-	 
- Right:
-	 mov dx, right
-	 je  takeInput
 	
 .dosexit:
 	mov word dx, [oldintoff]
@@ -245,4 +280,3 @@ takeInput:
 	int     21h
 
 .end
->>>>>>> origin/roopenbranch
