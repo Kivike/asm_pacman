@@ -185,47 +185,7 @@ draw:
 	
 	cmp word [pressesc],1
 	jne .mainloop
-
-takeInput:
- 
-	mov ah, 9                    ;DOS: print string
-	int 21h
- 
-	mov	ah, 1					;DOS: get character
- 	int	21h
- 	or	al, 20h					;to lowercase
- 
- ; Check keypresses and change the right text
-	cmp al, 'w'					
-		je Up					
-
- 	cmp	al, 'a'					
-		je Left					
 	
- 	cmp	al, 's'					
-		je Down
-	
-	cmp al, 'd'					
-		je Right		
-
- 	jnz	takeInput
- 
- 
- Up: 
-	 mov dx, up
-	 je  takeInput
- 
- Left:
-	 mov dx, left
-	 je  takeInput
- 
- Down:
-	 mov dx, down
-	 je  takeInput
-	 
- Right:
-	 mov dx, right
-	 je  takeInput
 	
 .dosexit:
 	mov word dx, [oldintoff]
@@ -245,4 +205,3 @@ takeInput:
 	int     21h
 
 .end
->>>>>>> origin/roopenbranch
