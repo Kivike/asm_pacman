@@ -14,7 +14,7 @@ XXXX_X_XXXXX_X_XXXX
 X________X________X
 X_XX_XXX_X_XXX_XX_X
 X__X___________X__X
-XX_X_X_XXXXX_X_X__X
+XX_X_X_XXXXX_X_X_XX
 X____X___X___X____X
 X_XXXXXX_X_XXXXXX_X
 X_________________X
