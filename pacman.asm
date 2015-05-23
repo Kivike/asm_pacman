@@ -41,7 +41,31 @@ segment mydata data
 	oldvideomode resw 1
 	pressesc resw 1
 	foo	resw	1
+
+segment dots data
 	
+	dotRows dd
+	0000000000000000000b,
+	0111111110111111110b,
+	0100100010100010010b,
+	0111111111111111110b,
+	0100101000001010010b,
+	0111101110111011110b,
+	0000100010100010000b,
+	0000101111111010000b,
+	0000101000001010000b,
+	0000111000001110000b,
+	0000101000001010000b,
+	0000101111111010000b,
+	0000101000001010000b,
+	0111111110111111110b,
+	0100100010100010010b,
+	0110111111111110110b,
+	0010101000001010100b,
+	0111101110111011110b,
+	0100000010100000010b,
+	0111111111111111110b,
+	0000000000000000000b,
 
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
@@ -187,43 +211,6 @@ draw:
 
 		cmp word [pressesc],1
 		jne .mainloop
-
-takeInput:
- 
-		mov ah, 9               ;DOS: print string
-		int 21h
- 
-		mov	ah, 1				;DOS: get character
- 		int	21h
- 		or	al, 20h				;to lowercase
- 
- 		; Check keypresses and call the subroutine
-		cmp al, 'w'					
-			je Up					
-
-	 	cmp	al, 'a'					
-			je Left					
-		
-	 	cmp	al, 's'					
-			je Down
-		
-		cmp al, 'd'					
-			je Right		
-
-	 	ret
- 
- 
- Up: 
-		je  takeInput
- 
- Left:
-		je  takeInput
- 
- Down:
-		je  takeInput
-	 
- Right:
-		je  takeInput
 	
 .dosexit:
 		mov word dx, [oldintoff]
