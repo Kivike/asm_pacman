@@ -115,7 +115,41 @@ KeybInt:
    	    pop 	ds       		; Regain the ds,ax from stack
         iret	                ; Return from interrupt
 		
+takeInput:
+ 
+		mov ah, 9               ;DOS: print string
+		int 21h
+ 
+		mov	ah, 1				;DOS: get character
+ 		int	21h
+ 		or	al, 20h				;to lowercase
+ 		
+		cmp al, 'w'				; Check keypresses and call the subroutine
+			je Up					
 
+	 	cmp	al, 'a'					
+			je Left					
+		
+	 	cmp	al, 's'					
+			je Down
+		
+		cmp al, 'd'					
+			je Right		
+
+	 	ret
+ 
+ 
+ Up: 
+		je  takeInput
+ 
+ Left:
+		je  takeInput
+ 
+ Down:
+		je  takeInput
+	 
+ Right:
+		je  takeInput
 
 copybackground:
 		push 
