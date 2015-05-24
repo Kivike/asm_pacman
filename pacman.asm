@@ -140,6 +140,7 @@ KeybInt:
 copybackground:
 	push ds
 	pusha
+
 	;Pointers
 	mov word si, 0
 	mov word di, 0
@@ -173,17 +174,25 @@ copymemscreen:
 	mov es,ax
 	mov ax,background						; Source segment
 	mov ds,ax
-	
 	;REPEAT COPY!
 	rep movsb										; Move byte at address ds:si to address es:di
+	;mov bx,ds
+
+	;mov byte[es:di],bl
 	popa
 	pop ds
 	ret
 
 initbackground:
-	mov cx,0
-	mov byte[background],blue
-	mov byte[background+1],blue
+	push ds
+	mov ax,background
+	mov ds,ax
+	mov byte[0],green
+	mov byte[1],green
+	mov byte[2],blue
+	mov byte[3],yellow
+	mov byte[4],red
+	pop ds
 	ret
 	
 drawrow:
@@ -197,7 +206,6 @@ drawpixel:
 	
 	jmp drawpixeldone
 	
-	
 drawpixeldone:
   inc cx
 	jmp drawrow
@@ -205,10 +213,9 @@ drawpixeldone:
 drawrowdone:
 	ret
 	
-
 draw:
 	;call copybackground
-	call drawPacman
+	;call drawPacman
 	call copymemscreen
 	ret
 	
@@ -216,13 +223,30 @@ drawsinglepixel:
 	mov ax,videobase
 	mov es,ax										;move video memory address to ESC
 	mov di,0										;move the desired offset address to DI
-	mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
+	mov cl,[background+di]
+	mov byte[es:di],cl				;move the constant 'blue' to the video memroy at offset DI
 	inc di											;inc offset
-	mov byte[es:di],white				;paint another pixel
-	mov cl,[background+1]
-	mov byte[es:0],cl
+	mov cl,[background+di]
+	mov byte[es:di],cl				;paint another pixel
 	ret
 	
+lopeta:
+	mov word dx, [oldintoff]
+	mov word bx, [oldintseg]
+	mov ds,bx
+	mov al,9
+	mov ah,25h
+	int 21h											;Vanhat arvot takas
+	
+	mov word dx, [oldvideomode]
+	mov ah,00h
+	mov al,13h
+	int 10h											;Vanha videomode takas
+	
+	mov	al, 0
+	mov ah, 4ch
+	int 21h
+
 ..start:
 		
 	mov ax, mydata
@@ -255,11 +279,13 @@ drawsinglepixel:
 	int 10h											;Asetetaan uusi videomode
 	
 	call initbackground
+	call draw
 	
 .mainloop:
 
-	call draw
-	call drawsinglepixel
+	
+	;call draw
+	;call drawsinglepixel
 	;mov ax,videobase
 	;mov es,ax										;move video memory address to ESC
 	;mov di,0										;move the desired offset address to DI
@@ -268,8 +294,6 @@ drawsinglepixel:
 	;mov byte[es:di],white				;paint another pixel
 	;mov cl,[background+1]
 	;mov byte[es:0],cl
-	
-	
 	
 	cmp word [pressesc],1
 	jne .mainloop
@@ -289,7 +313,7 @@ drawsinglepixel:
 	int 10h											;Vanha videomode takas
 	
 	mov	al, 0
-	mov     ah, 4ch
-	int     21h
+	mov ah, 4ch
+	int 21h
 
 .end
