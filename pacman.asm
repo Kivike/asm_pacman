@@ -21,6 +21,8 @@ grey						EQU 00000111b
 yellow					EQU 00001110b
 transparent			EQU 11111111b
 
+scrwidth EQU 320
+
 ;;;;;;;;;;;;;;
 ; DATA AND STACK SEGMENTS
 ;;;;;;;;;;;;;;
@@ -42,30 +44,30 @@ segment mydata data
 	pressesc resw 1
 	foo	resw	1
 
-segment dots data
+;segment dots data
 	
-	dotRows dd
-	0000000000000000000b,
-	0111111110111111110b,
-	0100100010100010010b,
-	0111111111111111110b,
-	0100101000001010010b,
-	0111101110111011110b,
-	0000100010100010000b,
-	0000101111111010000b,
-	0000101000001010000b,
-	0000111000001110000b,
-	0000101000001010000b,
-	0000101111111010000b,
-	0000101000001010000b,
-	0111111110111111110b,
-	0100100010100010010b,
-	0110111111111110110b,
-	0010101000001010100b,
-	0111101110111011110b,
-	0100000010100000010b,
-	0111111111111111110b,
-	0000000000000000000b,
+	;dotRows dd
+	;0000000000000000000b,
+	;0111111110111111110b,
+	;0100100010100010010b,
+	;0111111111111111110b,
+	;0100101000001010010b,
+	;0111101110111011110b,
+	;0000100010100010000b,
+	;0000101111111010000b,
+	;0000101000001010000b,
+	;0000111000001110000b,
+	;0000101000001010000b,
+	;0000101111111010000b,
+	;0000101000001010000b,
+	;0111111110111111110b,
+	;0100100010100010010b,
+	;0110111111111110110b,
+	;0010101000001010100b,
+	;0111101110111011110b,
+	;0100000010100000010b,
+	;0111111111111111110b,
+	;0000000000000000000b,
 
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
@@ -151,9 +153,53 @@ takeInput:
  Right:
 		je  takeInput
 
+
+; takeInput:
+ 
+	; mov ah, 9				;DOS: print string
+	; int 21h
+ 
+	; mov	ah, 1			;DOS: get character
+ 	; int	21h
+ 	; or	al, 20h			;to lowercase
+ 
+ ; ; Check keypresses and change the right text
+	; cmp al, 'w'					
+		; je Up					
+
+ 	; cmp	al, 'a'					
+		; je Left					
+	
+ 	; cmp	al, 's'					
+		; je Down
+	
+	; cmp al, 'd'					
+		; je Right		
+
+ 	; jnz	takeInput
+ 
+ 
+; Up: 
+ ; mov dx, up
+ ; je  takeInput
+
+; Left:
+ ; mov dx, left
+ ; je  takeInput
+
+; Down:
+ ; mov dx, down
+ ; je  takeInput
+ 
+; Right:
+ ; mov dx, right
+ ; je  takeInput
+ 
 copybackground:
-		push 
+
+		push ds
 		pusha
+
 		;Pointers
 		mov word si, 0
 		mov word di, 0
@@ -164,19 +210,18 @@ copybackground:
 		mov es,ax
 		mov ax,background		; Source segment
 		mov ds,ax
-		
+	
 		;REPEAT COPY!
 		rep movsb				; Move byte at address ds:si to address es:di
 		popa
 		pop ds
 		ret
-
-
 	
 drawPacman:
-
+		ret
+	
 copymemscreen:
-		push 
+		push ds
 		pusha
 		;Pointers
 		mov word si, 0
@@ -186,20 +231,82 @@ copymemscreen:
 		;Segment registers to correct locations
 		mov ax,videobase		; Destination segment
 		mov es,ax
-		mov ax,memscreen		; Source segment
+		mov ax,background		; Source segment
 		mov ds,ax
-		
 		;REPEAT COPY!
 		rep movsb				; Move byte at address ds:si to address es:di
+		;mov bx,ds
+
+		;mov byte[es:di],bl
 		popa
 		pop ds
 		ret
 
-draw:
-		call copybackground
-		call drawPacman
-		call copymemscreen
+
+initbackground:
+		push ds
+		mov ax,background
+		mov ds,ax
+		mov byte[0],green
+		mov byte[1],green
+		mov byte[2],blue
+		mov byte[3],yellow
+		mov byte[4],red
+		pop ds
+		ret
 	
+drawrow:
+		cmp cx,150
+		je drawrowdone
+
+drawpixel:
+		mov bx,background
+		add bx,cx
+		mov byte[bx],blue
+		
+		jmp drawpixeldone
+	
+drawpixeldone:
+	  	inc cx
+		jmp drawrow
+	
+drawrowdone:
+	ret
+	
+draw:
+		;call copybackground
+		;call drawPacman
+		call copymemscreen
+		ret
+	
+drawsinglepixel:
+		mov ax,videobase
+		mov es,ax										;move video memory address to ESC
+		mov di,0										;move the desired offset address to DI
+		mov cl,[background+di]
+		mov byte[es:di],cl				;move the constant 'blue' to the video memroy at offset DI
+		inc di											;inc offset
+		mov cl,[background+di]
+		mov byte[es:di],cl				;paint another pixel
+	ret
+	
+lopeta:
+		mov word dx, [oldintoff]
+		mov word bx, [oldintseg]
+		mov ds,bx
+		mov al,9
+		mov ah,25h
+		int 21h											;Vanhat arvot takas
+		
+		mov word dx, [oldvideomode]
+		mov ah,00h
+		mov al,13h
+		int 10h											;Vanha videomode takas
+		
+		mov	al, 0
+		mov ah, 4ch
+		int 21h
+
 ..start:
 		
 		mov ax, mydata
@@ -231,36 +338,41 @@ draw:
 		mov al,13h
 		int 10h					;Asetetaan uusi videomode
 	
+		call initbackground
+		call draw
 	
 .mainloop:
 
-		mov ax,videobase
-		mov es,ax				;move video memory address to ESC
-		mov di,0				;move the desired offset address to DI
-		mov byte[es:di],blue	;move the constant 'blue' to the video memroy at offset DI
-		inc di					;inc offset
-		mov byte[es:di],white	;paint another pixel
-		
-		call takeInput			;Take input
+	;call draw
+	;call drawsinglepixel
+	;mov ax,videobase
+	;mov es,ax										;move video memory address to ESC
+	;mov di,0										;move the desired offset address to DI
+	;mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
+	;inc di											;inc offset
+	;mov byte[es:di],white				;paint another pixel
+	;mov cl,[background+1]
+	;mov byte[es:0],cl
+	
+	cmp word [pressesc],1
+	jne .mainloop
 
-		cmp word [pressesc],1
-		jne .mainloop
 	
 .dosexit:
-		mov word dx, [oldintoff]
-		mov word bx, [oldintseg]
-		mov ds,bx
-		mov al,9
-		mov ah,25h
-		int 21h											;Vanhat arvot takas
-		
-		mov word dx, [oldvideomode]
-		mov ah,00h
-		mov al,13h
-		int 10h											;Vanha videomode takas
-		
-		mov	al, 0
-		mov ah, 4ch
-		int 21h
+	mov word dx, [oldintoff]
+	mov word bx, [oldintseg]
+	mov ds,bx
+	mov al,9
+	mov ah,25h
+	int 21h											;Vanhat arvot takas
+	
+	mov word dx, [oldvideomode]
+	mov ah,00h
+	mov al,13h
+	int 10h											;Vanha videomode takas
+	
+	mov	al, 0
+	mov ah, 4ch
+	int 21h
 
 .end
