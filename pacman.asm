@@ -157,7 +157,6 @@ copybackground:
 	pop ds
 	ret
 	
-	
 drawPacman:
 	ret
 	
@@ -172,7 +171,7 @@ copymemscreen:
 	;Segment registers to correct locations
 	mov ax,videobase					; Destination segment
 	mov es,ax
-	mov ax,memscreen						; Source segment
+	mov ax,background						; Source segment
 	mov ds,ax
 	
 	;REPEAT COPY!
@@ -183,20 +182,20 @@ copymemscreen:
 
 initbackground:
 	mov cx,0
+	mov byte[background],blue
+	mov byte[background+1],blue
+	ret
 	
 drawrow:
 	cmp cx,150
 	je drawrowdone
-	mov bx,0
 
 drawpixel:
-	mov di,bx
-	mov byte[es:di],blue
+	mov bx,background
+	add bx,cx
+	mov byte[bx],blue
 	
-	cmp bx,10
-	je drawpixeldone
-	inc bx
-	jmp drawpixel
+	jmp drawpixeldone
 	
 	
 drawpixeldone:
@@ -204,14 +203,24 @@ drawpixeldone:
 	jmp drawrow
 	
 drawrowdone:
-	mov [background],es
 	ret
 	
 
 draw:
-	call copybackground
+	;call copybackground
 	call drawPacman
 	call copymemscreen
+	ret
+	
+drawsinglepixel:
+	mov ax,videobase
+	mov es,ax										;move video memory address to ESC
+	mov di,0										;move the desired offset address to DI
+	mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
+	inc di											;inc offset
+	mov byte[es:di],white				;paint another pixel
+	mov cl,[background+1]
+	mov byte[es:0],cl
 	ret
 	
 ..start:
@@ -250,13 +259,17 @@ draw:
 .mainloop:
 
 	call draw
-	
+	call drawsinglepixel
 	;mov ax,videobase
 	;mov es,ax										;move video memory address to ESC
 	;mov di,0										;move the desired offset address to DI
 	;mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
 	;inc di											;inc offset
 	;mov byte[es:di],white				;paint another pixel
+	;mov cl,[background+1]
+	;mov byte[es:0],cl
+	
+	
 	
 	cmp word [pressesc],1
 	jne .mainloop
