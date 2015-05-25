@@ -38,9 +38,11 @@ segment mystack stack
 stacktop:	
 
 segment bitmaps data
+	Ghost1 db transparent,transparent,red,red,red,red,red,red,transparent,transparent,transparent,red,red,red,red,red,red,red,red,transparent,red,red,red,red,red,red,red,red,red,red,red,red,white,blue,red,red,blue,white,red,red,red,red,white,black,red,red,black,white,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,transparent,red,red,red,red,transparent,red,red,red,transparent,transparent,transparent,red,red,transparent,transparent,transparent,red
+
 	CoinBlock db transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent
 	BlueBlock db blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue
-	RedBlock db red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red
+	
 	MapRow1 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	MapRow2 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
 	MapRow3 db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
@@ -61,34 +63,11 @@ segment bitmaps data
 	MapRow18 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
 	MapRow19 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	
-	CoinRow1 db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    CoinRow2 db 0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0
-    CoinRow3 db 0,1,0,1,1,1,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow4 db 0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow5 db 0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0
-    CoinRow6 db 0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0
-    CoinRow7 db 0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0
-    CoinRow8 db 0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0
-    CoinRow9 db 0,1,1,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0
-    CoinRow10 db 0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0
-    CoinRow11 db 0,1,1,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0
-    CoinRow12 db 0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0
-    CoinRow13 db 0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0
-    CoinRow14 db 0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0
-    CoinRow15 db 0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0
-	CoinRow16 db 0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow17 db 0,1,0,1,1,1,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow18 db 0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0
-    CoinRow19 db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	
-	;map db 11111111b,11111111b,11110000b,00001000b,00000110b,11011101b,01110110b,11000000b,00000000b,00011011b,01011111b,01011011b,00001000b,10001000b,01111101b,11010111b,01111111b,10100000b,00101111b,11110101b,11110101b,11111110b,00111110b,00111111b,11010111b,11010111b,11111010b,00000010b,11111111b,01011111b,01011111b,00000000b,10000000b,01101101b,11010111b,01101100b,10000000b,00001001b,11010101b,11110101b,01110000b,10001000b,10000110b,11111101b,01111110b,11000000b,00000000b,00011111b,11111111b,11111110b
-	
 segment mydata data
 	oldintseg resw 1
 	oldintoff resw 1
 	oldvideomode resw 1
 	pressesc resw 1
-
 
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
@@ -389,21 +368,9 @@ draw:
 	int 10h					;Asetetaan uusi videomode
 
 	call initbackground
-	call draw
 	
 .mainloop:
-	;call draw
-	;call draw
-	;call drawsinglepixel
-	;mov ax,videobase
-	;mov es,ax										;move video memory address to ESC
-	;mov di,0										;move the desired offset address to DI
-	;mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
-	;inc di											;inc offset
-	;mov byte[es:di],white				;paint another pixel
-	;mov cl,[background+1]
-	;mov byte[es:0],cl
-	
+	call draw
 	cmp word [pressesc],1
 	jne .mainloop
 
