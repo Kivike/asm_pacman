@@ -38,28 +38,49 @@ segment mystack stack
 stacktop:	
 
 segment bitmaps data
-	;PacmanMap db red,red,red,red,red
+	CoinBlock db transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent
 	BlueBlock db blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue
 	RedBlock db red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red
-	MapRow1 db 11111111b,11111111b,11111000b
-	MapRow2 db 10001000b,11111110b,00001000b
-	MapRow3 db 10100010b,11111110b,10101000b
-	MapRow4 db 10101110b,11111110b,10101000b
-	MapRow5 db 10100000b,00000000b,00001000b
-	MapRow6 db 10111010b,11101111b,10101000b
-	MapRow7 db 10100010b,00000010b,00101000b
-	MapRow8 db 10101010b,10111010b,10101000b
-	MapRow9 db 10001000b,10111000b,10001000b
-	MapRow10 db 10111011b,10111011b,10111000b
-	MapRow11 db 10001000b,10111000b,10001000b
-	MapRow12 db 10101010b,10111010b,10101000b
-	MapRow13 db 10100010b,00000010b,00101000b
-	MapRow14 db 10111010b,11101111b,10101000b
-	MapRow15 db 10100000b,00000000b,00001000b
-	MapRow16 db 10101110b,11111110b,10101000b
-	MapRow17 db 10100010b,11111110b,10101000b
-	MapRow18 db 10001000b,11111110b,00001000b
-	MapRow19 db 11111111b,11111111b,11111000b
+	MapRow1 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+	MapRow2 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
+	MapRow3 db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow4 db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow5 db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow6 db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
+	MapRow7 db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow8 db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
+	MapRow9 db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow10 db 1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1
+	MapRow11 db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow12 db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
+	MapRow13 db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow14 db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
+	MapRow15 db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow16 db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow17 db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow18 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
+	MapRow19 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+	
+	CoinRow1 db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    CoinRow2 db 0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0
+    CoinRow3 db 0,1,0,1,1,1,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
+    CoinRow4 db 0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
+    CoinRow5 db 0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0
+    CoinRow6 db 0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0
+    CoinRow7 db 0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0
+    CoinRow8 db 0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0
+    CoinRow9 db 0,1,1,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0
+    CoinRow10 db 0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0
+    CoinRow11 db 0,1,1,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0
+    CoinRow12 db 0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0
+    CoinRow13 db 0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0
+    CoinRow14 db 0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0
+    CoinRow15 db 0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0
+	CoinRow16 db 0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
+    CoinRow17 db 0,1,0,1,1,1,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
+    CoinRow18 db 0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0
+    CoinRow19 db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	
 	;map db 11111111b,11111111b,11110000b,00001000b,00000110b,11011101b,01110110b,11000000b,00000000b,00011011b,01011111b,01011011b,00001000b,10001000b,01111101b,11010111b,01111111b,10100000b,00101111b,11110101b,11110101b,11111110b,00111110b,00111111b,11010111b,11010111b,11111010b,00000010b,11111111b,01011111b,01011111b,00000000b,10000000b,01101101b,11010111b,01101100b,10000000b,00001001b,11010101b,11110101b,01110000b,10001000b,10000110b,11111101b,01111110b,11000000b,00000000b,00011111b,11111111b,11111110b
 	
 segment mydata data
@@ -255,27 +276,48 @@ initbackground:
 		push cx
 		mov cx,dx
 	.drawblockcolumn:
+		push cx
+		push dx
+		mov cx,10
+		mov dx,10
+		
 		mov byte bl,[ds:si]		; current mapblock
 		push si
-		;cmp bl,1				; if mapblock is a wall
-		;jne .skip
-		mov bx,BlueBlock
-		mov si,BlueBlock
-		call copybitmap
+		cmp bl,1				; if mapblock is a wall
+		je .setblueblock
+		cmp bl,2
+		je .setcoinblock
+		cmp bl,0
+		je .skip
+		
+		.setblueblock:
+			mov bx,BlueBlock
+			mov si,BlueBlock
+			jmp .drawblock
+		.setcoinblock:
+			mov bx,CoinBlock
+			mov si,CoinBlock
+		.drawblock:
+			call copybitmap
+		
 		.skip:
 			pop si
+			pop dx
+			pop cx
+			
 			inc si
 			add di,10
 			loop .drawblockcolumn
 		pop cx
-		add di,140				; Move to next row
+		add di,2990			; Move to next row
 		loop .drawblockrow
 	popa
 	pop ds
 	ret
 
+
 copybitmap:
-	;PARAMETERS:
+	;PARAMETERS
     ;   SI contains the offset address of the bitmap
     ;   DI contains the target coordinate 
     ;   ES contains the target segment
@@ -283,7 +325,7 @@ copybitmap:
     ;   DX contains the bitmap col count
 	push ds
 	pusha
-	
+
 	mov ax,bitmaps
 	mov ds,ax
 
@@ -310,9 +352,10 @@ copybitmap:
 	
 	
 draw:
-	call copybackground
+	; Creates the image by layering
+	call copybackground				; Draw bg layer
 	;call drawPacman
-	call copymemscreen
+	call copymemscreen				; Show image
 	ret
 
 ..start:
