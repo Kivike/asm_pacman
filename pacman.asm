@@ -39,6 +39,8 @@ stacktop:
 
 segment bitmaps data
 	Ghost1 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
+	Ghost2 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
+	Ghost3 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
 
 	CoinBlock 	db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
 	
@@ -73,7 +75,11 @@ segment mydata data
 	pressesc resw 1
 	movedir resw 1
     pacmanloc resw 1
-
+	ghost1loc resw 1
+	ghost2loc resw 1
+	ghost3loc resw 1
+	dotseaten resw 1
+	
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
 ;;;;;;;;;;;;;;
@@ -192,6 +198,56 @@ drawPacman:
 	popa
 	ret
 	
+drawGhost1:
+	pusha
+	push cx
+	push dx
+	mov ax,Ghost1
+	mov si,ax
+	mov ax,memscreen
+	mov es,ax
+	mov cx,10
+	mov dx,10
+	mov di,[ghost1loc]
+	call copybitmap
+	pop dx
+	pop cx
+	popa
+	ret
+
+drawGhost2:
+	pusha
+	push cx
+	push dx
+	mov ax,Ghost2
+	mov si,ax
+	mov ax,memscreen
+	mov es,ax
+	mov cx,10
+	mov dx,10
+	mov di,[ghost2loc]
+	call copybitmap
+	pop dx
+	pop cx
+	popa
+	ret
+	
+drawGhost3:
+	pusha
+	push cx
+	push dx
+	mov ax,Ghost3
+	mov si,ax
+	mov ax,memscreen
+	mov es,ax
+	mov cx,10
+	mov dx,10
+	mov di,[ghost3loc]
+	call copybitmap
+	pop dx
+	pop cx
+	popa
+	ret
 	
 copymemscreen:
 	push ds
@@ -268,7 +324,6 @@ initbackground:
 	ret
 
  checkIfEatCoins:			;Might not work with 90% chance
-	
 	; mov ax,mydata			
 	; mov ds, ax				;Change datasegment
 	; mov bh,pacmanloc
@@ -368,6 +423,9 @@ draw:
 	; Creates the image by layering
 	call copybackground				; Draw bg layer
 	call drawPacman					; Draw pacman
+	call drawGhost1
+	call drawGhost2
+	call drawGhost3
 	call copymemscreen				; Show image
 	ret
 
@@ -403,13 +461,15 @@ draw:
 
 	call initbackground
 	mov word[pacmanloc],3210
+	mov word[ghost1loc],3350
+	mov word[ghost2loc],3370
+	mov word[ghost3loc],3390
 	
 .mainloop:
 	call movePacman
 	call draw
 	cmp word [pressesc],1
 	jne .mainloop
-
 	
 .dosexit:
 	mov word dx, [oldintoff]
@@ -428,3 +488,14 @@ draw:
 	mov ah, 4ch
 	int 21h
 .end
+
+    pusha
+    call checkcollision
+    cmp dx, 1
+    je .skip
+    mov ax,[pacmanloc]
+    add ax,[movedir]
+    mov [pacmanloc],ax
+    popa
+	.skip:
+    ret
