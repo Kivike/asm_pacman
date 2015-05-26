@@ -41,7 +41,10 @@ segment bitmaps data
 	Ghost1 db transparent,transparent,red,red,red,red,red,red,transparent,transparent,transparent,red,red,red,red,red,red,red,red,transparent,red,red,red,red,red,red,red,red,red,red,red,red,white,blue,red,red,blue,white,red,red,red,red,white,black,red,red,black,white,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,transparent,red,red,red,red,transparent,red,red,red,transparent,transparent,transparent,red,red,transparent,transparent,transparent,red
 
 	CoinBlock db transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent
+	
 	BlueBlock db blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue
+
+	Pacman db yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow
 	
 	MapRow1 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	MapRow2 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
@@ -68,6 +71,8 @@ segment mydata data
 	oldintoff resw 1
 	oldvideomode resw 1
 	pressesc resw 1
+	movedir resw 1
+    pacmanloc resw 1
 
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
@@ -294,6 +299,36 @@ initbackground:
 	pop ds
 	ret
 
+checkcollision:
+	
+	mov cx, 0             ;Boolean collision is false
+
+	mov ax,pacmanloc      ;Check pacmans next movement
+	add ax, movdir
+
+	mov bx, [videobase + ax] ;Check collision with blue in the corners
+	cmp bx, blue
+	je collision
+
+	mov bx, [videobase + ax + 10]
+	cmp bx, blue
+	je collision
+
+	mov bx, [videobase + ax + 3200]
+	cmp bx, blue
+	je collision
+
+	mov bx, [videobase + ax + 3210]
+	cmp bx, blue
+	je collision
+
+	ret                  ;Return if no collision
+
+
+collision:
+	mov cx, 1           ;Boolean collision is true
+	ret
+
 
 copybitmap:
 	;PARAMETERS
@@ -391,5 +426,4 @@ draw:
 	mov	al, 0
 	mov ah, 4ch
 	int 21h
-
 .end
