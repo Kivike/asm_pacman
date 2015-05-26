@@ -106,8 +106,38 @@ KeybInt:
 	    jmp     .kbread
 .cminus:
 	    cmp 	al, 04Ah		; 4A is the 'make code' for keypad minus
-	    jne	.kbread
+	    jne	.w
 	    ;something here later
+
+.w:
+		cmp		al,11h
+		jne .a
+		mov bx,[movedir]
+		mov bx,320
+		neg bx
+		mov [movedir],bx
+		jmp .kbread
+		
+.a:		cmp		al,1Eh
+		jne .s
+		mov bx,[movedir]
+		mov bx,1
+		neg bx
+		mov [movedir],bx
+		jmp .kbread
+
+.s		cmp		al,1Fh
+		jne .d
+		mov bx,[movedir]
+		mov bx,320
+		mov [movedir],bx
+		jmp .kbread
+
+.d		cmp		al,20h
+		jne .kbread
+		mov bx,[movedir]
+		mov bx,1
+		mov [movedir],bx
 
 .kbread:
         in      al,61h          ; Send acknowledgment without
@@ -122,84 +152,7 @@ KeybInt:
    	    pop 	ds       		; Regain the ds,ax from stack
         iret	                ; Return from interrupt
 		
-takeInput:
- 
-		mov ah, 9               ;DOS: print string
-		int 21h
- 
-		mov	ah, 1				;DOS: get character
- 		int	21h
- 		or	al, 20h				;to lowercase
- 		
-		cmp al, 'w'				; Check keypresses and call the subroutine
-			je Up					
 
-	 	cmp	al, 'a'					
-			je Left					
-		
-	 	cmp	al, 's'					
-			je Down
-		
-		cmp al, 'd'					
-			je Right		
-
-	 	ret
- 
- 
- Up: 
-		je  takeInput
- 
- Left:
-		je  takeInput
- 
- Down:
-		je  takeInput
-	 
- Right:
-		je  takeInput
-
-
-; takeInput:
- 
-	; mov ah, 9				;DOS: print string
-	; int 21h
- 
-	; mov	ah, 1			;DOS: get character
- 	; int	21h
- 	; or	al, 20h			;to lowercase
- 
- ; ; Check keypresses and change the right text
-	; cmp al, 'w'					
-		; je Up					
-
- 	; cmp	al, 'a'					
-		; je Left					
-	
- 	; cmp	al, 's'					
-		; je Down
-	
-	; cmp al, 'd'					
-		; je Right		
-
- 	; jnz	takeInput
- 
- 
-; Up: 
- ; mov dx, up
- ; je  takeInput
-
-; Left:
- ; mov dx, left
- ; je  takeInput
-
-; Down:
- ; mov dx, down
- ; je  takeInput
- 
-; Right:
- ; mov dx, right
- ; je  takeInput
- 
 copybackground:
 
 	push ds
@@ -223,7 +176,22 @@ copybackground:
 	ret
 	
 drawPacman:
+	pusha
+	push cx
+	push dx
+	mov ax,Pacman
+	mov si,ax
+	mov ax,memscreen
+	mov es,ax
+	mov cx,10
+	mov dx,10
+	mov di,[pacmanloc]
+	call copybitmap
+	pop dx
+	pop cx
+	popa
 	ret
+	
 	
 copymemscreen:
 	push ds
@@ -299,52 +267,52 @@ initbackground:
 	pop ds
 	ret
 
-checkcollision:
+; checkcollision:
 	
-	mov cx, 0             ;Boolean collision is false
+	; mov cx, 0             ;Boolean collision is false
 
-	mov ax,pacmanloc      ;Check pacmans next movement
-	add ax, movdir
+	; mov ax,pacmanloc      ;Check pacmans next movement
+	; add ax, movdir
 
-	mov bx, [videobase + ax] ;Check collision with blue in the corners
-	cmp bx, blue
-	je collision
+	; mov bx, [videobase + ax] ;Check collision with blue in the corners
+	; cmp bx, blue
+	; je collision
 
-	mov bx, [videobase + ax + 10]
-	cmp bx, blue
-	je collision
+	; mov bx, [videobase + ax + 10]
+	; cmp bx, blue
+	; je collision
 
-	mov bx, [videobase + ax + 3200]
-	cmp bx, blue
-	je collision
+	; mov bx, [videobase + ax + 3200]
+	; cmp bx, blue
+	; je collision
 
-	mov bx, [videobase + ax + 3210]
-	cmp bx, blue
-	je collision
+	; mov bx, [videobase + ax + 3210]
+	; cmp bx, blue
+	; je collision
 
-	ret                  ;Return if no collision
+	; ret                  ;Return if no collision
 
 
-collision:
-	mov cx, 1           ;Boolean collision is true
-	ret
+; collision:
+	; mov cx, 1           ;Boolean collision is true
+	; ret
 
-checkIfEatCoins:			;Might not work with 90% chance
+; checkIfEatCoins:			;Might not work with 90% chance
 	
-	mov ax,mydata			
-	mov ds, ax				;Change datasegment
-	mov bh,pacmanloc
-	mov bl, [bh / 10]		;Get pacman location in tiles (divided by 10 (can you even do this?))
-	mov ax,bitmaps						
-	mov ds, ax				;Change datasegment to bitmaps
-	mov ax, MapRow1 		;Get first map row				
-	cmp [ax + bl], 2        ;Check If there is a coin at pacmans tile
-	je eat                  ;Eat
-	ret
+	; mov ax,mydata			
+	; mov ds, ax				;Change datasegment
+	; mov bh,pacmanloc
+	; mov bl, [bh / 10]		;Get pacman location in tiles (divided by 10 (can you even do this?))
+	; mov ax,bitmaps						
+	; mov ds, ax				;Change datasegment to bitmaps
+	; mov ax, MapRow1 		;Get first map row				
+	; cmp [ax + bl], 2        ;Check If there is a coin at pacmans tile
+	; je eat                  ;Eat
+	; ret
 
-eat:
-	mov [ax + bl], 0
-	ret
+; eat:
+	; mov [ax + bl], 0
+	; ret
 
 
 copybitmap:
@@ -381,11 +349,18 @@ copybitmap:
 	pop ds
 	ret
 	
+movePacman:
+	pusha
+	mov ax,[pacmanloc]
+	add ax,[movedir]
+	mov [pacmanloc],ax
+	popa
+	ret
 	
 draw:
 	; Creates the image by layering
 	call copybackground				; Draw bg layer
-	;call drawPacman
+	call drawPacman
 	call copymemscreen				; Show image
 	ret
 
@@ -420,8 +395,10 @@ draw:
 	int 10h					;Asetetaan uusi videomode
 
 	call initbackground
+	mov word[pacmanloc],1500
 	
 .mainloop:
+	call movePacman
 	call draw
 	cmp word [pressesc],1
 	jne .mainloop
