@@ -267,37 +267,7 @@ initbackground:
 	pop ds
 	ret
 
-; checkcollision:
-	
-	; mov cx, 0             ;Boolean collision is false
-
-	; mov ax,pacmanloc      ;Check pacmans next movement
-	; add ax, movdir
-
-	; mov bx, [videobase + ax] ;Check collision with B in the corners
-	; cmp bx, B
-	; je collision
-
-	; mov bx, [videobase + ax + 10]
-	; cmp bx, B
-	; je collision
-
-	; mov bx, [videobase + ax + 3200]
-	; cmp bx, B
-	; je collision
-
-	; mov bx, [videobase + ax + 3210]
-	; cmp bx, B
-	; je collision
-
-	; ret                  ;Return if no collision
-
-
-; collision:
-	; mov cx, 1           ;Boolean collision is true
-	; ret
-
-; checkIfEatCoins:			;Might not work with 90% chance
+ checkIfEatCoins:			;Might not work with 90% chance
 	
 	; mov ax,mydata			
 	; mov ds, ax				;Change datasegment
@@ -351,11 +321,48 @@ copybitmap:
 	
 movePacman:
 	pusha
+	call checkcollision
+	cmp dx, 1
+	je .skip
 	mov ax,[pacmanloc]
 	add ax,[movedir]
 	mov [pacmanloc],ax
+	.skip:
 	popa
 	ret
+
+checkcollision:
+	
+	mov dx, 0             ;Boolean collision is false
+
+	mov bx, [pacmanloc]      ;Check pacmans next movement
+	add bx, [movedir]
+				
+	mov ax, [videobase + bx] ;Check collision with B in the corners
+	cmp ax, B
+	je collision
+
+	add bx, 10
+	mov ax, [videobase + bx]
+	cmp ax, B
+	je collision
+
+	add bx, 3190
+	mov ax, [videobase + bx]
+	cmp ax, B
+	je collision
+
+	add bx, 10
+	mov ax, [videobase + bx]
+	cmp ax, B
+	je collision
+
+	ret                  ;Return if no collision
+
+
+ collision:
+	 mov dx, 1           ;Boolean collision is true
+	 ret
 	
 draw:
 	; Creates the image by layering
@@ -395,7 +402,7 @@ draw:
 	int 10h					;Asetetaan uusi videomode
 
 	call initbackground
-	mov word[pacmanloc],1500
+	mov word[pacmanloc],3210
 	
 .mainloop:
 	call movePacman
