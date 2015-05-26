@@ -8,18 +8,18 @@ stacksize       EQU 0200h
 
 ; starting address of video memory
 
-videobase				EQU 0a000h
+videobase		EQU 0a000h
 
 ; some colors
 
-black				EQU 0
-green				EQU 00110000b
-blue				EQU 00001001b
-red					EQU 00000100b
-white				EQU 00001111b
-grey				EQU 00000111b
-yellow				EQU 00001110b
-transparent			EQU 11111111b
+M		EQU 0
+G		EQU 00110000b
+B		EQU 00001001b
+R		EQU 00000100b
+W		EQU 00001111b
+H		EQU 00000111b
+Y		EQU 00001110b
+T		EQU 11111111b
 
 scrwidth EQU 320
 
@@ -38,58 +38,48 @@ segment mystack stack
 stacktop:	
 
 segment bitmaps data
-	CoinBlock db transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent
-	BlueBlock db blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue
-	RedBlock db red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red
-	MapRow1 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-	MapRow2 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
-	MapRow3 db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow4 db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow5 db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
-	MapRow6 db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
-	MapRow7 db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
-	MapRow8 db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
-	MapRow9 db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
-	MapRow10 db 1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1
-	MapRow11 db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
-	MapRow12 db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
-	MapRow13 db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
-	MapRow14 db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
-	MapRow15 db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
-	MapRow16 db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow17 db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow18 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
-	MapRow19 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+	Ghost1 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
+	Ghost2 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
+	Ghost3 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
+
+	CoinBlock 	db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
 	
-	CoinRow1 db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    CoinRow2 db 0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0
-    CoinRow3 db 0,1,0,1,1,1,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow4 db 0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow5 db 0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0
-    CoinRow6 db 0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0
-    CoinRow7 db 0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0
-    CoinRow8 db 0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0
-    CoinRow9 db 0,1,1,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0
-    CoinRow10 db 0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0
-    CoinRow11 db 0,1,1,1,0,1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0
-    CoinRow12 db 0,1,0,1,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0
-    CoinRow13 db 0,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0
-    CoinRow14 db 0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0
-    CoinRow15 db 0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0
-	CoinRow16 db 0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow17 db 0,1,0,1,1,1,0,1,0,0,0,0,0,0,0,1,0,1,0,1,0
-    CoinRow18 db 0,1,1,1,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,0
-    CoinRow19 db 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	BlueBlock 	db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
+
+	Pacman 		db Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
 	
-	;map db 11111111b,11111111b,11110000b,00001000b,00000110b,11011101b,01110110b,11000000b,00000000b,00011011b,01011111b,01011011b,00001000b,10001000b,01111101b,11010111b,01111111b,10100000b,00101111b,11110101b,11110101b,11111110b,00111110b,00111111b,11010111b,11010111b,11111010b,00000010b,11111111b,01011111b,01011111b,00000000b,10000000b,01101101b,11010111b,01101100b,10000000b,00001001b,11010101b,11110101b,01110000b,10001000b,10000110b,11111101b,01111110b,11000000b,00000000b,00011111b,11111111b,11111110b
+	MapRow1 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+	MapRow2 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
+	MapRow3 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow4 	db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow5 	db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow6 	db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
+	MapRow7 	db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow8 	db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
+	MapRow9 	db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow10 	db 1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1
+	MapRow11 	db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow12 	db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
+	MapRow13 	db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow14 	db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
+	MapRow15 	db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow16 	db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow17 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow18 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
+	MapRow19 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	
 segment mydata data
 	oldintseg resw 1
 	oldintoff resw 1
 	oldvideomode resw 1
 	pressesc resw 1
-
-
+	movedir resw 1
+    pacmanloc resw 1
+	ghost1loc resw 1
+	ghost2loc resw 1
+	ghost3loc resw 1
+	dotseaten resw 1
+	
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
 ;;;;;;;;;;;;;;
@@ -122,8 +112,38 @@ KeybInt:
 	    jmp     .kbread
 .cminus:
 	    cmp 	al, 04Ah		; 4A is the 'make code' for keypad minus
-	    jne	.kbread
+	    jne	.w
 	    ;something here later
+
+.w:
+		cmp		al,11h
+		jne .a
+		mov bx,[movedir]
+		mov bx,320
+		neg bx
+		mov [movedir],bx
+		jmp .kbread
+		
+.a:		cmp		al,1Eh
+		jne .s
+		mov bx,[movedir]
+		mov bx,1
+		neg bx
+		mov [movedir],bx
+		jmp .kbread
+
+.s		cmp		al,1Fh
+		jne .d
+		mov bx,[movedir]
+		mov bx,320
+		mov [movedir],bx
+		jmp .kbread
+
+.d		cmp		al,20h
+		jne .kbread
+		mov bx,[movedir]
+		mov bx,1
+		mov [movedir],bx
 
 .kbread:
         in      al,61h          ; Send acknowledgment without
@@ -138,84 +158,7 @@ KeybInt:
    	    pop 	ds       		; Regain the ds,ax from stack
         iret	                ; Return from interrupt
 		
-takeInput:
- 
-		mov ah, 9               ;DOS: print string
-		int 21h
- 
-		mov	ah, 1				;DOS: get character
- 		int	21h
- 		or	al, 20h				;to lowercase
- 		
-		cmp al, 'w'				; Check keypresses and call the subroutine
-			je Up					
 
-	 	cmp	al, 'a'					
-			je Left					
-		
-	 	cmp	al, 's'					
-			je Down
-		
-		cmp al, 'd'					
-			je Right		
-
-	 	ret
- 
- 
- Up: 
-		je  takeInput
- 
- Left:
-		je  takeInput
- 
- Down:
-		je  takeInput
-	 
- Right:
-		je  takeInput
-
-
-; takeInput:
- 
-	; mov ah, 9				;DOS: print string
-	; int 21h
- 
-	; mov	ah, 1			;DOS: get character
- 	; int	21h
- 	; or	al, 20h			;to lowercase
- 
- ; ; Check keypresses and change the right text
-	; cmp al, 'w'					
-		; je Up					
-
- 	; cmp	al, 'a'					
-		; je Left					
-	
- 	; cmp	al, 's'					
-		; je Down
-	
-	; cmp al, 'd'					
-		; je Right		
-
- 	; jnz	takeInput
- 
- 
-; Up: 
- ; mov dx, up
- ; je  takeInput
-
-; Left:
- ; mov dx, left
- ; je  takeInput
-
-; Down:
- ; mov dx, down
- ; je  takeInput
- 
-; Right:
- ; mov dx, right
- ; je  takeInput
- 
 copybackground:
 
 	push ds
@@ -238,30 +181,72 @@ copybackground:
 	pop ds
 	ret
 	
-copycoinmap:
-
-	push ds
+drawPacman:
 	pusha
-
-	;Pointers
-	mov word si, 0
-	mov word di, 0
-	mov cx,64000
-
-	;Segment registers to correct locations
-	mov ax,memscreen		; Destination segment
+	push cx
+	push dx
+	mov ax,Pacman
+	mov si,ax
+	mov ax,memscreen
 	mov es,ax
-	mov ax,background		; Source segment
-	mov ds,ax
-
-	;REPEAT COPY!
-	rep movsb				; Move byte at address ds:si to address es:di
+	mov cx,10
+	mov dx,10
+	mov di,[pacmanloc]
+	call copybitmap
+	pop dx
+	pop cx
 	popa
-	pop ds
 	ret
 	
+drawGhost1:
+	pusha
+	push cx
+	push dx
+	mov ax,Ghost1
+	mov si,ax
+	mov ax,memscreen
+	mov es,ax
+	mov cx,10
+	mov dx,10
+	mov di,[ghost1loc]
+	call copybitmap
+	pop dx
+	pop cx
+	popa
+	ret
+
+drawGhost2:
+	pusha
+	push cx
+	push dx
+	mov ax,Ghost2
+	mov si,ax
+	mov ax,memscreen
+	mov es,ax
+	mov cx,10
+	mov dx,10
+	mov di,[ghost2loc]
+	call copybitmap
+	pop dx
+	pop cx
+	popa
+	ret
 	
-drawPacman:
+drawGhost3:
+	pusha
+	push cx
+	push dx
+	mov ax,Ghost3
+	mov si,ax
+	mov ax,memscreen
+	mov es,ax
+	mov cx,10
+	mov dx,10
+	mov di,[ghost3loc]
+	call copybitmap
+	pop dx
+	pop cx
+	popa
 	ret
 	
 copymemscreen:
@@ -307,13 +292,13 @@ initbackground:
 		mov byte bl,[ds:si]		; current mapblock
 		push si
 		cmp bl,1				; if mapblock is a wall
-		je .setblueblock
+		je .setBlueBlock
 		cmp bl,2
 		je .setcoinblock
 		cmp bl,0
 		je .skip
 		
-		.setblueblock:
+		.setBlueBlock:
 			mov bx,BlueBlock
 			mov si,BlueBlock
 			jmp .drawblock
@@ -337,47 +322,26 @@ initbackground:
 	popa
 	pop ds
 	ret
+
+
+
+
+; checkIfEatCoins:			;Might not work with 90% chance
 	
-initcoinmap:
-	push ds
-	pusha
-	mov ax,bitmaps				
-	mov ds,ax					; ds = bitmaps = source segment
-	mov di,0
-	mov si,CoinRow1				; si = current map block
-	mov ax,background
-	mov es,ax					; es = background = target segment
-	mov dx,21					; columns = 21
-	mov cx,19					; rows = 19
-	
-	.drawblockrow:
-		push cx
-		mov cx,dx
-	.drawblockcolumn:
-		mov byte bl,[ds:si]		; current mapblock
-		push si
-		cmp bl,1				; if mapblock is a wall
-		jne .skip
-		mov bx,CoinBlock
-		mov si,CoinBlock
-		push cx
-		push dx
-		mov cx,10
-		mov dx,10
-		call copybitmap
-		pop dx
-		pop cx
-		.skip:
-			pop si
-			inc si
-			add di,10
-			loop .drawblockcolumn
-		pop cx
-		add di,2990			; Move to next row
-		loop .drawblockrow
-	popa
-	pop ds
-	ret
+	; mov ax,mydata			
+	; mov ds, ax				;Change datasegment
+	; mov bh,pacmanloc
+	; mov bl, [bh / 10]		;Get pacman location in tiles (divided by 10 (can you even do this?))
+	; mov ax,bitmaps						
+	; mov ds, ax				;Change datasegment to bitmaps
+	; mov ax, MapRow1 		;Get first map row				
+	; cmp [ax + bl], 2        ;Check If there is a coin at pacmans tile
+	; je eat                  ;Eat
+	; ret
+
+; eat:
+	; mov [ax + bl], 0
+	; ret
 
 
 copybitmap:
@@ -389,7 +353,7 @@ copybitmap:
     ;   DX contains the bitmap col count
 	push ds
 	pusha
-	
+
 	mov ax,bitmaps
 	mov ds,ax
 
@@ -399,7 +363,7 @@ copybitmap:
 		mov cx,dx
 		.colloop:
 			mov byte bl,[ds:si]
-			cmp byte bl,transparent
+			cmp byte bl,T
 			je .skip
 			mov byte[es:di],bl
 			.skip:
@@ -414,12 +378,54 @@ copybitmap:
 	pop ds
 	ret
 	
+checkcollision:
+    mov dx, 0             ;Boolean collision is false
+
+    mov bx, [pacmanloc]      ;Check pacmans next movement
+    add bx, [movedir]
+                
+    mov ax, [videobase + bx] ;Check collision with B in the corners
+    cmp ax, B
+    je collision
+
+    add bx, 10
+    mov ax, [videobase + bx]
+    cmp ax, B
+    je collision
+
+    add bx, 3190
+    mov ax, [videobase + bx]
+    cmp ax, B
+    je collision
+
+    add bx, 10
+    mov ax, [videobase + bx]
+    cmp ax, B
+    je collision
+	
+collision:
+	mov dx, 1           ;Boolean collision is true
+	ret
+
+movePacman:
+    pusha
+    call checkcollision
+    cmp dx, 1
+    je .skip
+    mov ax,[pacmanloc]
+    add ax,[movedir]
+    mov [pacmanloc],ax
+    .skip:
+    popa
+    ret
 	
 draw:
 	; Creates the image by layering
 	call copybackground				; Draw bg layer
-	call copycoinmap				; Draw coin layer
-	;call drawPacman
+	call drawPacman					; Draw pacman
+	call drawGhost1
+	call drawGhost2
+	call drawGhost3
 	call copymemscreen				; Show image
 	ret
 
@@ -454,25 +460,16 @@ draw:
 	int 10h					;Asetetaan uusi videomode
 
 	call initbackground
-	call initcoinmap
-	call draw
+	mov word[pacmanloc],3210
+	mov word[ghost1loc],3350
+	mov word[ghost2loc],3370
+	mov word[ghost3loc],3390
 	
 .mainloop:
-	;call draw
-	;call draw
-	;call drawsinglepixel
-	;mov ax,videobase
-	;mov es,ax										;move video memory address to ESC
-	;mov di,0										;move the desired offset address to DI
-	;mov byte[es:di],blue				;move the constant 'blue' to the video memroy at offset DI
-	;inc di											;inc offset
-	;mov byte[es:di],white				;paint another pixel
-	;mov cl,[background+1]
-	;mov byte[es:0],cl
-	
+	call movePacman
+	call draw
 	cmp word [pressesc],1
 	jne .mainloop
-
 	
 .dosexit:
 	mov word dx, [oldintoff]
@@ -480,15 +477,25 @@ draw:
 	mov ds,bx
 	mov al,9
 	mov ah,25h
-	int 21h											;Vanhat arvot takas
+	int 21h				;Vanhat arvot takas
 	
 	mov word dx, [oldvideomode]
 	mov ah,00h
 	mov al,13h
-	int 10h											;Vanha videomode takas
+	int 10h				;Vanha videomode takas
 	
 	mov	al, 0
 	mov ah, 4ch
 	int 21h
-
 .end
+
+    pusha
+    call checkcollision
+    cmp dx, 1
+    je .skip
+    mov ax,[pacmanloc]
+    add ax,[movedir]
+    mov [pacmanloc],ax
+    popa
+	.skip:
+    ret
