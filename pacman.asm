@@ -13,13 +13,13 @@ videobase				EQU 0a000h
 ; some colors
 
 black				EQU 0
-green				EQU 00110000b
-blue				EQU 00001001b
-red					EQU 00000100b
-white				EQU 00001111b
+G				EQU 00110000b
+B				EQU 00001001b
+R					EQU 00000100b
+W				EQU 00001111b
 grey				EQU 00000111b
-yellow				EQU 00001110b
-transparent			EQU 11111111b
+Y				EQU 00001110b
+T			EQU 11111111b
 
 scrwidth EQU 320
 
@@ -38,13 +38,13 @@ segment mystack stack
 stacktop:	
 
 segment bitmaps data
-	Ghost1 db transparent,transparent,red,red,red,red,red,red,transparent,transparent,transparent,red,red,red,red,red,red,red,red,transparent,red,red,red,red,red,red,red,red,red,red,red,red,white,blue,red,red,blue,white,red,red,red,red,white,black,red,red,black,white,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,red,transparent,red,red,red,red,transparent,red,red,red,transparent,transparent,transparent,red,red,transparent,transparent,transparent,red
+	Ghost1 db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,black,R,R,black,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
 
-	CoinBlock db transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,yellow,yellow,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent,transparent
+	CoinBlock db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
 	
-	BlueBlock db blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue,blue
+	BBlock db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
 
-	Pacman db yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow,yellow
+	Pacman db Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
 	
 	MapRow1 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	MapRow2 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
@@ -236,15 +236,15 @@ initbackground:
 		mov byte bl,[ds:si]		; current mapblock
 		push si
 		cmp bl,1				; if mapblock is a wall
-		je .setblueblock
+		je .setBblock
 		cmp bl,2
 		je .setcoinblock
 		cmp bl,0
 		je .skip
 		
-		.setblueblock:
-			mov bx,BlueBlock
-			mov si,BlueBlock
+		.setBblock:
+			mov bx,BBlock
+			mov si,BBlock
 			jmp .drawblock
 		.setcoinblock:
 			mov bx,CoinBlock
@@ -274,20 +274,20 @@ initbackground:
 	; mov ax,pacmanloc      ;Check pacmans next movement
 	; add ax, movdir
 
-	; mov bx, [videobase + ax] ;Check collision with blue in the corners
-	; cmp bx, blue
+	; mov bx, [videobase + ax] ;Check collision with B in the corners
+	; cmp bx, B
 	; je collision
 
 	; mov bx, [videobase + ax + 10]
-	; cmp bx, blue
+	; cmp bx, B
 	; je collision
 
 	; mov bx, [videobase + ax + 3200]
-	; cmp bx, blue
+	; cmp bx, B
 	; je collision
 
 	; mov bx, [videobase + ax + 3210]
-	; cmp bx, blue
+	; cmp bx, B
 	; je collision
 
 	; ret                  ;Return if no collision
@@ -334,7 +334,7 @@ copybitmap:
 		mov cx,dx
 		.colloop:
 			mov byte bl,[ds:si]
-			cmp byte bl,transparent
+			cmp byte bl,T
 			je .skip
 			mov byte[es:di],bl
 			.skip:
