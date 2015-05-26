@@ -8,18 +8,18 @@ stacksize       EQU 0200h
 
 ; starting address of video memory
 
-videobase				EQU 0a000h
+videobase		EQU 0a000h
 
 ; some colors
 
-black				EQU 0
-G				EQU 00110000b
-B				EQU 00001001b
-R					EQU 00000100b
-W				EQU 00001111b
-grey				EQU 00000111b
-Y				EQU 00001110b
-T			EQU 11111111b
+M		EQU 0
+G		EQU 00110000b
+B		EQU 00001001b
+R		EQU 00000100b
+W		EQU 00001111b
+H		EQU 00000111b
+Y		EQU 00001110b
+T		EQU 11111111b
 
 scrwidth EQU 320
 
@@ -38,33 +38,33 @@ segment mystack stack
 stacktop:	
 
 segment bitmaps data
-	Ghost1 db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,black,R,R,black,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
+	Ghost1 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
 
-	CoinBlock db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
+	CoinBlock 	db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
 	
-	BlueBlock db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
+	BlueBlock 	db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
 
-	Pacman db Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
+	Pacman 		db Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
 	
-	MapRow1 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-	MapRow2 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
-	MapRow3 db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow4 db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow5 db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
-	MapRow6 db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
-	MapRow7 db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
-	MapRow8 db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
-	MapRow9 db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
-	MapRow10 db 1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1
-	MapRow11 db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
-	MapRow12 db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
-	MapRow13 db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
-	MapRow14 db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
-	MapRow15 db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
-	MapRow16 db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow17 db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow18 db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
-	MapRow19 db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+	MapRow1 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+	MapRow2 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
+	MapRow3 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow4 	db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow5 	db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow6 	db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
+	MapRow7 	db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow8 	db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
+	MapRow9 	db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow10 	db 1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1
+	MapRow11 	db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow12 	db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
+	MapRow13 	db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow14 	db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
+	MapRow15 	db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow16 	db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow17 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow18 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
+	MapRow19 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	
 segment mydata data
 	oldintseg resw 1
@@ -360,7 +360,7 @@ movePacman:
 draw:
 	; Creates the image by layering
 	call copybackground				; Draw bg layer
-	call drawPacman
+	call drawPacman					; Draw pacman
 	call copymemscreen				; Show image
 	ret
 
@@ -410,12 +410,12 @@ draw:
 	mov ds,bx
 	mov al,9
 	mov ah,25h
-	int 21h											;Vanhat arvot takas
+	int 21h				;Vanhat arvot takas
 	
 	mov word dx, [oldvideomode]
 	mov ah,00h
 	mov al,13h
-	int 10h											;Vanha videomode takas
+	int 10h				;Vanha videomode takas
 	
 	mov	al, 0
 	mov ah, 4ch
