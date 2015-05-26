@@ -329,6 +329,23 @@ collision:
 	mov cx, 1           ;Boolean collision is true
 	ret
 
+checkIfEatCoins:			;Might not work with 90% chance
+	
+	mov ax,mydata			
+	mov ds, ax				;Change datasegment
+	mov bh,pacmanloc
+	mov bl, [bh / 10]		;Get pacman location in tiles (divided by 10 (can you even do this?))
+	mov ax,bitmaps						
+	mov ds, ax				;Change datasegment to bitmaps
+	mov ax, MapRow1 		;Get first map row				
+	cmp [ax + bl], 2        ;Check If there is a coin at pacmans tile
+	je eat                  ;Eat
+	ret
+
+eat:
+	mov [ax + bl], 0
+	ret
+
 
 copybitmap:
 	;PARAMETERS
