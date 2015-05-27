@@ -323,22 +323,49 @@ initbackground:
 	pop ds
 	ret
 
- checkIfEatCoins:			;Might not work with 90% chance
-	; mov ax,mydata			
-	; mov ds, ax				;Change datasegment
-	; mov bh,pacmanloc
-	; mov bl, [bh / 10]		;Get pacman location in tiles (divided by 10 (can you even do this?))
-	; mov ax,bitmaps						
-	; mov ds, ax				;Change datasegment to bitmaps
-	; mov ax, MapRow1 		;Get first map row				
-	; cmp [ax + bl], 2        ;Check If there is a coin at pacmans tile
-	; je eat                  ;Eat
-	; ret
+checkIfEatCoins:			
 
-; eat:
-	; mov [ax + bl], 0
-	; ret
+	mov dx, 0
+	mov ax, [pacmanloc]
+	mov bx, 3200            ;Get pacman's row 
+	div bx
+	mov cx, ax 				;Put pacman's row to cx
 
+	mov ax, dx 				;Get modulo to ax
+	mov dx, 0
+	mov bx, 320             ;Get rows off from next modulo
+	div bx
+	mov ax, dx
+
+	mov dx, 0 				;Wont work without :D
+
+	mov bx, 10 				;Get pacman's column
+	div bx
+	mov bx, ax 				;Put pacman's column to bx
+	mov dx, 0
+
+	mov ax, cx 				;move rows to ax
+	mov cx, 21
+	mul cx                  ;multiply by columns in one row
+
+	add ax, bx				;and add columns toget final point
+	mov di, ax
+
+	push ds
+	mov ax, bitmaps					
+	mov ds, ax				;Change datasegment to bitmaps
+	mov ax, MapRow1 		;Get first map row
+	mov es, ax
+
+	mov fs, di
+	mov gs, [es:di]
+
+	cmp word[es:di], 2      ;Check If there is a coin at pacmans tile
+	jne .skipeat            ;Eat
+	mov word[es:di], 0
+	.skipeat
+	pop ds
+	ret
 
 copybitmap:
 	;PARAMETERS
@@ -376,6 +403,7 @@ copybitmap:
 	
 movePacman:
 	pusha
+	call checkIfEatCoins
 	call checkcollision
 	cmp dx,1
 	je .skip
@@ -387,9 +415,9 @@ movePacman:
 		ret
 
 checkcollision:
-	mov dx, 0             ;Boolean collision is false
+	mov dx, 0            ;Boolean collision is false
 
-	mov bx, [pacmanloc]      ;Check pacmans next movement
+	mov bx, [pacmanloc]  ;Check pacmans next movement
 	add bx, [movedir]
 
 	mov cx,memscreen
