@@ -377,47 +377,63 @@ copybitmap:
 movePacman:
 	pusha
 	call checkcollision
-	cmp dx, 1
+	cmp dx,1
 	je .skip
 	mov ax,[pacmanloc]
 	add ax,[movedir]
 	mov [pacmanloc],ax
 	.skip:
-	popa
-	ret
+		popa
+		ret
 
 checkcollision:
-	
 	mov dx, 0             ;Boolean collision is false
 
 	mov bx, [pacmanloc]      ;Check pacmans next movement
 	add bx, [movedir]
-				
-	mov ax, [videobase + bx] ;Check collision with B in the corners
-	cmp ax, B
-	je collision
 
-	add bx, 10
-	mov ax, [videobase + bx]
-	cmp ax, B
-	je collision
-
-	add bx, 3190
-	mov ax, [videobase + bx]
-	cmp ax, B
-	je collision
-
-	add bx, 10
-	mov ax, [videobase + bx]
-	cmp ax, B
-	je collision
-
-	ret                  ;Return if no collision
-
-
- collision:
-	 mov dx, 1           ;Boolean collision is true
-	 ret
+	mov cx,memscreen
+	mov es,cx
+	mov di,bx
+	mov bl,B
+	mov cx,10
+	mov dx,10
+	
+	call iscolour
+	
+	cmp ax,0
+	je .nocollision
+	mov dx,1
+	ret
+	.nocollision:
+		mov dx,0
+		ret
+		
+; https://wiki.oulu.fi/pages/viewpage.action?title=PACMAN+-+Part+2
+iscolour:
+    PUSH DI
+    PUSH CX
+    PUSH DX
+    MOV AX, 0
+    .rowloop:
+        PUSH CX
+        PUSH DI
+        MOV CX, DX
+        .colloop:
+            cmp byte [ES:DI], BL
+            jne .ok
+                INC AX
+            .ok:
+            INC DI
+            LOOP .colloop
+        POP DI
+        ADD DI, 320
+        POP CX
+        LOOP .rowloop
+    POP DX
+    POP CX
+    POP DI
+    RET
 	
 draw:
 	; Creates the image by layering
