@@ -67,7 +67,7 @@ segment bitmaps data
 	MapRow17 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
 	MapRow18 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
 	MapRow19 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-	
+
 segment mydata data
 	oldintseg resw 1
 	oldintoff resw 1
@@ -118,32 +118,65 @@ KeybInt:
 .w:
 		cmp		al,11h
 		jne .a
+		
 		mov bx,[movedir]
+		push bx
 		mov bx,320
 		neg bx
-		mov [movedir],bx
-		jmp .kbread
+		mov [movedir],bx		; Set new move direction initially
+		
+		call checkcollision		; Check if there is collision with the new direction
+		pop bx					; Pop bx to the original move direction
+		cmp dx,1
+		jne .kbread				; If no collision, the direction remains
+		.undow:					
+			mov [movedir],bx	; Else, set back the original direction
 		
 .a:		cmp		al,1Eh
 		jne .s
+		
 		mov bx,[movedir]
+		push bx
 		mov bx,1
 		neg bx
-		mov [movedir],bx
-		jmp .kbread
+		mov [movedir],bx	
+		
+		call checkcollision
+		pop bx
+		cmp dx,1
+		jne .kbread
+		.undoa:
+			mov [movedir],bx
 
 .s		cmp		al,1Fh
 		jne .d
+		
 		mov bx,[movedir]
+		push bx
 		mov bx,320
 		mov [movedir],bx
-		jmp .kbread
-
+		
+		call checkcollision
+		pop bx
+		cmp dx,1	
+		jne .kbread
+		.undos:
+			mov [movedir],bx
+;
 .d		cmp		al,20h
 		jne .kbread
+		
 		mov bx,[movedir]
+		push bx
 		mov bx,1
 		mov [movedir],bx
+		
+		call checkcollision
+		pop bx
+		cmp dx,1
+		jne .kbread
+		.undod:
+			mov [movedir],bx
 
 .kbread:
         in      al,61h          ; Send acknowledgment without
@@ -160,7 +193,6 @@ KeybInt:
 		
 
 copybackground:
-
 	push ds
 	pusha
 
@@ -180,6 +212,26 @@ copybackground:
 	popa
 	pop ds
 	ret
+	
+copymemscreen:
+	push ds
+	pusha
+	
+	;Pointers
+	mov word si, 0
+	mov word di, 0
+	mov cx,64000
+
+	;Segment registers to correct locations
+	mov ax,videobase		; Destination segment
+	mov es,ax
+	mov ax,memscreen		; Source segment
+	mov ds,ax
+	;REPEAT COPY!
+	rep movsb				; Move byte at address ds:si to address es:di
+	popa
+	pop ds
+	ret	
 	
 drawPacman:
 	pusha
@@ -249,24 +301,7 @@ drawGhost3:
 	popa
 	ret
 	
-copymemscreen:
-	push ds
-	pusha
-	;Pointers
-	mov word si, 0
-	mov word di, 0
-	mov cx,64000
 
-	;Segment registers to correct locations
-	mov ax,videobase		; Destination segment
-	mov es,ax
-	mov ax,memscreen		; Source segment
-	mov ds,ax
-	;REPEAT COPY!
-	rep movsb				; Move byte at address ds:si to address es:di
-	popa
-	pop ds
-	ret
 
 initbackground:
 	push ds
@@ -376,41 +411,59 @@ copybitmap:
 	
 movePacman:
 	pusha
+	mov ax,50h
+	mov bl,2
+	div bl
 	call checkcollision
 	cmp dx,1
-	je .skip
+	je .collision
 	mov ax,[pacmanloc]
 	add ax,[movedir]
 	mov [pacmanloc],ax
+	jmp .skip
+	.collision:
+		mov word[movedir],0
 	.skip:
 		popa
 		ret
 
 checkcollision:
-	mov dx, 0             ;Boolean collision is false
-
+	; Checks for collision
+	; Returns boolean to bx
+	push bx
+	push cx
+	
 	mov bx, [pacmanloc]      ;Check pacmans next movement
 	add bx, [movedir]
-
+	mov di,bx
 	mov cx,memscreen
 	mov es,cx
-	mov di,bx
+	
 	mov bl,B
 	mov cx,10
 	mov dx,10
 	
 	call iscolour
 	
+	mov dx,0
 	cmp ax,0
-	je .nocollision
-	mov dx,1
-	ret
-	.nocollision:
-		mov dx,0
+	je .return
+
+	.collision:
+		mov dx, 1
+		
+	.return:
+		pop cx
+		pop bx
 		ret
 		
 ; https://wiki.oulu.fi/pages/viewpage.action?title=PACMAN+-+Part+2
 iscolour:
+	; DI = Rect coordinate
+	; CX, DX = Rect width, height
+	; ES = Data segment to check in
+	; BL = Color to check
+	; AX = Return as pixel count
     PUSH DI
     PUSH CX
     PUSH DX
@@ -503,15 +556,3 @@ draw:
 	mov	al, 0
 	mov ah, 4ch
 	int 21h
-.end
-
-    pusha
-    call checkcollision
-    cmp dx, 1
-    je .skip
-    mov ax,[pacmanloc]
-    add ax,[movedir]
-    mov [pacmanloc],ax
-    popa
-	.skip:
-    ret
