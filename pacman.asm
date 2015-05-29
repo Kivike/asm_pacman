@@ -47,8 +47,8 @@ segment bitmaps data
 
 	BlueBlock 	db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
 
-	Pacman 		db Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
-	
+	Pacman 		db T,T,T,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,Y,Y,Y,T,T,Y,Y,Y,Y,Y,Y,Y,T,W,W,T,Y,Y,Y,Y,Y,T,W,T,B,W,T,Y,Y,Y,Y,T,W,T,T,W,T,Y,Y,Y,Y,Y,T,W,W,T,Y,Y,Y,T,Y,Y,Y,T,T,Y,Y,Y,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,T,T,T
+
 	MapRow1 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	MapRow2 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
 	MapRow3 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
