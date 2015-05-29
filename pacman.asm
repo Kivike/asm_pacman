@@ -43,7 +43,8 @@ segment bitmaps data
 	Ghost3 		db T,T,R,R,R,R,R,R,T,T,T,R,R,R,R,R,R,R,R,T,R,R,R,R,R,R,R,R,R,R,R,R,W,B,R,R,B,W,R,R,R,R,W,M,R,R,M,W,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,R,T,R,R,R,R,T,R,R,R,T,T,T,R,R,T,T,T,R
 
 	CoinBlock 	db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
-	
+	EmptyBlock 	db M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M
+
 	BlueBlock 	db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
 
 	Pacman 		db Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y
@@ -315,7 +316,7 @@ initbackground:
 		cmp bl,2
 		je .setcoinblock
 		cmp bl,0
-		je .skip
+		je .setemptyblock
 		
 		.setBlueBlock:
 			mov bx,BlueBlock
@@ -324,6 +325,10 @@ initbackground:
 		.setcoinblock:
 			mov bx,CoinBlock
 			mov si,CoinBlock
+			jmp .drawblock
+		.setemptyblock:
+			mov bx,EmptyBlock
+			mov si,EmptyBlock
 		.drawblock:
 			call copybitmap
 		
@@ -342,22 +347,56 @@ initbackground:
 	pop ds
 	ret
 
- checkIfEatCoins:			;Might not work with 90% chance
-	; mov ax,mydata			
-	; mov ds, ax				;Change datasegment
-	; mov bh,pacmanloc
-	; mov bl, [bh / 10]		;Get pacman location in tiles (divided by 10 (can you even do this?))
-	; mov ax,bitmaps						
-	; mov ds, ax				;Change datasegment to bitmaps
-	; mov ax, MapRow1 		;Get first map row				
-	; cmp [ax + bl], 2        ;Check If there is a coin at pacmans tile
-	; je eat                  ;Eat
-	; ret
+checkIfEatCoins:	
+	push ds
+	mov ax, [pacmanloc]
+	
+	;Get pacman's row
+	mov dx, 0
+	mov bx, 3200            
+	div bx
+	mov cx, ax 				;Put pacman's row to cx
 
-; eat:
-	; mov [ax + bl], 0
+	mov ax, dx 				;Get modulo to ax
+	mov dx, 0
+	mov bx, 320             ;Get rows off from next modulo
+	div bx
+	mov ax, dx
+
+	
+	;Get pacman's column
+	mov dx, 0 				;Wont work without :D
+	mov bx, 10 				
+	div bx
+	mov bx, ax 				;Put pacman's column to bx
+
+	
+	mov ax, cx 				;move rows to ax
+	mov cx, 21
+	mul cx                  ;multiply by columns in one row
+
+	add ax, bx				;and add columns to get final point
+	;mov fs,ax
+	mov bx,bitmaps
+	mov ds,bx
+	mov es,bx
+	add ax, MapRow1	
+	mov di,ax
+
+	mov ax,word[es:di]
+	cmp ah, 2      ;Check If there is a coin at pacmans tile
+	jne .skipeat            ;Eat
+	mov cx,7
+	mov fs,cx
+	mov ah, 0
+	mov word[es:di],0
+	call initbackground
+	
+	.skipeat:
+	pop ds
 	ret
-
+	
+	
 copybitmap:
 	;PARAMETERS
     ;   SI contains the offset address of the bitmap
@@ -441,7 +480,9 @@ checkInput:
 movePacman:
 	pusha
 	push dx
+	call checkIfEatCoins
 	mov ax,[movedir]
+	
 	call checkcollision
 	cmp dx,1
 	je .collision
