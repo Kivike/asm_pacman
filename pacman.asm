@@ -12,14 +12,14 @@ videobase		EQU 0a000h
 
 ; some colors
 
-M		EQU 0
-G		EQU 00110000b
-B		EQU 00001001b
-R		EQU 00000100b
-W		EQU 00001111b
-H		EQU 00000111b
-Y		EQU 00001110b
-T		EQU 11111111b
+M		EQU 0				;Musta
+G		EQU 00110000b		;Green
+B		EQU 00001001b		;Blue
+R		EQU 00000100b		;Red
+W		EQU 00001111b		;White
+H		EQU 00000111b		;Harmaa
+Y		EQU 00001110b		;Yellow
+T		EQU 11111111b		;Transparent
 
 scrwidth EQU 320
 
@@ -44,7 +44,6 @@ segment bitmaps data
 
 	CoinBlock 	db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
 	EmptyBlock 	db M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M
-
 	BlueBlock 	db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
 
 	Pacman 		db T,T,T,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,Y,Y,Y,T,T,Y,Y,Y,Y,Y,Y,Y,T,W,W,T,Y,Y,Y,Y,Y,T,W,T,R,W,T,Y,Y,Y,Y,T,W,T,T,W,T,Y,Y,Y,Y,Y,T,W,W,T,Y,Y,Y,T,Y,Y,Y,T,T,Y,Y,Y,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,T,T,T
@@ -70,10 +69,13 @@ segment bitmaps data
 	MapRow19 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 
 segment mydata data
+	delay resw 1
 	oldintseg resw 1
 	oldintoff resw 1
 	oldvideomode resw 1
 	pressesc resw 1
+	pressplus resw 1
+	pressminus resw 1
 	pressw resw 1
 	pressa resw 1
 	presss resw 1
@@ -117,14 +119,26 @@ KeybInt:
 	    jmp    .kbread
 .cplus:
 	    cmp 	al, 04Eh		; 4E is the 'make code' for keypad plus
-	    jne 	.cminus
-	    ;something here later
+	    jne 	.cplusup
+	    mov 	word [pressplus], 1
 	    jmp     .kbread
+.cplusup:
+		cmp		al, 0CEh
+		jne 	.cminus
+		mov		word [pressplus], 0
+		jmp 	.kbread
+		
 .cminus:
 	    cmp 	al, 04Ah		; 4A is the 'make code' for keypad minus
-	    jne	.wDown
-	    ;something here later
+	    jne		.cminusup
+	    mov		word [pressminus], 1
 		jmp 	.kbread
+		
+.cminusup:
+		cmp		al, 0CAh
+		jne .wDown
+		mov word [pressminus], 0
+		jmp .kbread
 		
 .wDown:	cmp		al,11h
 		jne .aDown
@@ -222,26 +236,21 @@ copymemscreen:
 	
 drawPacman:
 	pusha
-	push cx
-	push dx
 	
 	mov ax,Pacman
 	mov si,ax			; Source bitmap
 	
 	mov ax,memscreen
 	mov es,ax			; Target segment
-	
 	mov cx,10			; Size
-	mov dx,10
+	mov dx,10			; Size
 	
 	mov di,[pacmanloc]	; Target offset
 	
 	call copybitmap
-	pop dx
-	pop cx
 	popa
 	ret
-	
+
 drawGhost1:
 	pusha
 	push cx
@@ -294,6 +303,7 @@ drawGhost3:
 	ret
 	
 initbackground:
+;Called only at the start of the game (uses a lot of cpu cycles)
 	push ds
 	pusha
 	mov ax,bitmaps				
@@ -341,12 +351,11 @@ initbackground:
 			pop si
 			pop dx
 			pop cx
-			
 			inc si
 			add di,10
 			loop .drawblockcolumn
 		pop cx
-		add di,2990			; Move to next row
+		add di,2990			; Move to next row, 9*320+140
 		loop .drawblockrow
 	popa
 	pop ds
@@ -393,16 +402,13 @@ checkIfEatCoins:
 	mov di,ax
 
 	mov ah,byte[es:di]
+	pop cx
+	pop bx
 	cmp ah, 2      ;Check If there is a coin at pacmans tile
-	jne .skipeat            ;Eat
-	mov cx,7
-	mov fs,cx
+	jne .return           ;Eat
 	mov ah, 0
 	mov byte[es:di],0
 
-	pop cx
-	pop bx
-	
 	mov ax,cx
 	mov cx,3200
 	mul cx
@@ -427,11 +433,6 @@ checkIfEatCoins:
 	call copybitmap
 	
 	jmp .return
-	
-	.skipeat:
-	pop cx
-	pop bx
-
 	
 	.return:
 		popa
@@ -476,42 +477,33 @@ checkInput:
 	push ax
 	push dx
 	
-	cmp word[pressw],1
-	je .pressedW
-	
-	cmp word[pressa],1
-	je .pressedA
-	
-	cmp word[presss],1
-	je .pressedS
-	
-	cmp word[pressd],1
-	je .pressedD
-	
-	jmp .return
-	
-	.pressedW:
-		mov ax,640
+	.checkW:
+		cmp word[pressw],1
+		jne .checkA
+		mov ax,320
 		neg ax
 		jmp .checkifok
-		
-	.pressedA:
-		mov ax,2
+	.checkA:
+		cmp word[pressa],1
+		jne .checkS
+		mov ax,1
 		neg ax
 		jmp .checkifok
-		
-	.pressedS:
-		mov ax,640
+	.checkS:
+		cmp word[presss],1
+		jne .checkD
+		mov ax,320
 		jmp .checkifok
-		
-	.pressedD:
-		mov ax,2
+	.checkD:
+		cmp word[pressd],1
+		jne .return
+		mov ax,1
 
 	.checkifok:
 		call checkcollision
 		cmp dx,1
-		je .return				; not OK
-		mov [movedir],ax		; OK
+		je .return				; COLLISION! ABORT ABORT
+		mov [movedir],ax		; OK, set new direction
 		
 	.return:
 		pop dx
@@ -519,7 +511,8 @@ checkInput:
 		ret
 
 movePacman:
-	pusha
+	push ax
+	push dx
 	call checkIfEatCoins
 	mov ax,[movedir]
 	
@@ -533,11 +526,13 @@ movePacman:
 	.collision:
 		mov word[movedir],0
 	.skip:
-		popa
+		pop dx
+		pop ax
 		ret
 
 moveGhosts:
-	pusha
+	push ax
+	push dx
 	mov ax,[ghost1movedir]
 	
 	call checkcollisionghost
@@ -550,11 +545,11 @@ moveGhosts:
 	.collision:
 		call randomMovement 
 	.skip:
-		popa
+		pop dx
+		pop ax
 		ret
 
 randomMovement
-
 	mov ah, 2CH 	;get system time
 	int 21h
 
@@ -598,7 +593,7 @@ checkcollision:
 	push cx
 	
 	mov bx, [pacmanloc]      ;Check pacmans next movement
-	add bx,ax ;[movedir]
+	add bx,ax
 	mov di,bx	;bx
 	
 	mov cx,memscreen
@@ -612,11 +607,29 @@ checkcollision:
 	
 	mov dx,0
 	cmp ax,0
-	je .return
+	je .checkforgreen
 
-	.collision:
-		mov dx, 1
+	mov dx, 1
+	jmp .return
 		
+
+	 ; check collision with ghosts (colors green and red)
+	 .checkforgreen:
+	 mov cx,10
+	 mov dx,10
+	 mov bl,G
+	 call iscolour
+	 cmp ax,0
+	 je .checkforred
+	 ; ################### DIE HERE #######################
+	
+	 .checkforred:
+	 mov bl,R
+	 call iscolour
+	 cmp ax,0
+	 je .return
+	 ; ################### DIE HERE #######################
+	 
 	.return:
 		pop cx
 		pop bx
@@ -631,25 +644,25 @@ checkcollisionghost:
 	push cx
 	
 	mov bx, [ghost1loc]      ;Check pacmans next movement
-	add bx,ax ;[movedir]
+	add bx,ax
 	mov di,bx	;bx
 	
 	mov cx,memscreen
 	mov es,cx
 	
-	mov bl,B
 	mov cx,10
 	mov dx,10
 	
+	mov bl,B
 	call iscolour
 	
-	mov dx,0
+	mov dx,0		; default = no collision
 	cmp ax,0
 	je .return
 
 	.collision:
-		mov dx, 1
-		
+		mov dx, 1	; collision
+
 	.return:
 		pop cx
 		pop bx
@@ -663,38 +676,66 @@ iscolour:
 	; ES = Data segment to check in
 	; BL = Color to check
 	; AX = Return as pixel count
-    PUSH DI
-    PUSH CX
-    PUSH DX
-    MOV AX, 0
+    push di
+    push cx
+    push dx
+    mov ax, 0
     .rowloop:
-        PUSH CX
-        PUSH DI
-        MOV CX, DX
+        push cx
+        push di
+        mov cx,dx
         .colloop:
-            cmp byte [ES:DI], BL
+            cmp byte [es:di],bl
             jne .ok
-                INC AX
+                inc ax
             .ok:
-            INC DI
-            LOOP .colloop
-        POP DI
-        ADD DI, 320
-        POP CX
-        LOOP .rowloop
-    POP DX
-    POP CX
-    POP DI
-    RET
+            inc di
+            loop .colloop
+        pop di
+        add di, 320
+        pop cx
+        loop .rowloop
+    pop dx
+    pop cx
+    pop di
+    ret
 	
 draw:
-	; Creates the image by layering
+	; Creates the image to be shown on screen
 	call copybackground				; Draw bg layer
 	call drawPacman					; Draw pacman
 	call drawGhost1
 	;call drawGhost2
 	;call drawGhost3
-	call copymemscreen				; Show image
+	
+	; Send image to screen
+	call copymemscreen
+	ret
+
+delayGame:
+	mov word dx,[delay]
+	.checkforinc
+		cmp word[pressplus],1
+		jne .checkfordec
+		inc dx
+		mov word[delay],dx
+		jmp .pause1
+		
+	.checkfordec
+		cmp word[pressminus],1
+		jne .pause1
+		cmp dx,1
+		je .pause1
+		dec dx
+		mov word[delay],dx
+	
+	.pause1:
+		mov cx,65535
+	.pause2:
+		dec cx
+		jne .pause2
+		dec dx
+		jne .pause1
 	ret
 
 ..start:
@@ -732,15 +773,12 @@ draw:
 	mov word[ghost1loc],3350
 	mov word[ghost2loc],3370
 	mov word[ghost3loc],3390
-	mov word[pressw],0
-	mov word[pressa],0
-	mov word[presss],0
-	mov word[pressd],0
 
-	mov ax, 320
-	mov [ghost1movedir], ax
+	mov word[delay],5
+	mov word[ghost1movedir], 320
 	
 .mainloop:
+	call delayGame
 	call checkInput
 	call movePacman
 	call moveGhosts
