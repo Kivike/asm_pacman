@@ -80,9 +80,14 @@ segment mydata data
 	pressd resw 1
 	movedir resw 1
     pacmanloc resw 1
+
 	ghost1loc resw 1
+	ghost1movedir resw 1
 	ghost2loc resw 1
+	ghost2movedir resw 1
 	ghost3loc resw 1
+	ghost3movedir resw 1
+	
 	dotseaten resw 1
 	
 ;;;;;;;;;;;;;;
@@ -533,6 +538,62 @@ movePacman:
 		popa
 		ret
 
+moveGhosts:
+	pusha
+	push dx
+	mov ax,[ghost1movedir]
+	
+	call checkcollisionghost
+	cmp dx,1
+	je .collision
+	mov ax,[ghost1loc]
+	add ax,[ghost1movedir]
+	mov [ghost1loc],ax
+	jmp .skip
+	.collision:
+		call randomMovement 
+	.skip:
+		pop dx
+		popa
+		ret
+
+randomMovement
+
+	mov ah, 2CH 	;get system time
+	int 21h
+
+	mov ax, 0
+	mov al, dl
+	mov bx, 4
+	div bx 			;get dividend (ah)
+
+	cmp ah, 0
+	je .moveup
+	cmp ah, 1
+	je .movedown
+	cmp ah, 2
+	je .moveleft
+	cmp ah, 3
+	je .moveright
+	ret
+
+	.moveup
+		mov ax, -1
+		mov word[ghost1movedir], ax
+		ret
+	.movedown
+		mov ax, 1
+		mov word[ghost1movedir], ax
+		ret
+	.moveleft
+		mov ax, 320
+		mov word[ghost1movedir], ax
+		ret
+	.moveright
+		mov ax, -320
+		mov word[ghost1movedir], ax
+		ret
+
 checkcollision:
 	; Checks for collision
 	; Returns boolean to bx
@@ -541,6 +602,39 @@ checkcollision:
 	push cx
 	
 	mov bx, [pacmanloc]      ;Check pacmans next movement
+	add bx,ax ;[movedir]
+	mov di,bx	;bx
+	
+	mov cx,memscreen
+	mov es,cx
+	
+	mov bl,B
+	mov cx,10
+	mov dx,10
+	
+	call iscolour
+	
+	mov dx,0
+	cmp ax,0
+	je .return
+
+	.collision:
+		mov dx, 1
+		
+	.return:
+		pop cx
+		pop bx
+		pop ax
+		ret
+
+checkcollisionghost:
+	; Checks for collision
+	; Returns boolean to bx
+	push ax
+	push bx
+	push cx
+	
+	mov bx, [ghost1loc]      ;Check pacmans next movement
 	add bx,ax ;[movedir]
 	mov di,bx	;bx
 	
@@ -601,7 +695,7 @@ draw:
 	; Creates the image by layering
 	call copybackground				; Draw bg layer
 	call drawPacman					; Draw pacman
-	;call drawGhost1
+	call drawGhost1
 	;call drawGhost2
 	;call drawGhost3
 	call copymemscreen				; Show image
@@ -646,10 +740,14 @@ draw:
 	mov word[pressa],0
 	mov word[presss],0
 	mov word[pressd],0
+
+	mov ax, 320
+	mov [ghost1movedir], ax
 	
 .mainloop:
 	call checkInput
 	call movePacman
+	call moveGhosts
 	call draw
 	cmp word [pressesc],1
 	jne .mainloop
