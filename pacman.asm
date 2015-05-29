@@ -349,6 +349,7 @@ initbackground:
 
 checkIfEatCoins:	
 	push ds
+	pusha
 	mov ax, [pacmanloc]
 	
 	;Get pacman's row
@@ -360,7 +361,7 @@ checkIfEatCoins:
 	mov ax, dx 				;Get modulo to ax
 	mov dx, 0
 	mov bx, 320             ;Get rows off from next modulo
-	div bx
+	div bx					; dx:ax/bx
 	mov ax, dx
 
 	
@@ -370,32 +371,67 @@ checkIfEatCoins:
 	div bx
 	mov bx, ax 				;Put pacman's column to bx
 
+	push bx
+	push cx
 	
 	mov ax, cx 				;move rows to ax
 	mov cx, 21
 	mul cx                  ;multiply by columns in one row
 
+
 	add ax, bx				;and add columns to get final point
-	;mov fs,ax
+
 	mov bx,bitmaps
 	mov ds,bx
 	mov es,bx
 	add ax, MapRow1	
 	mov di,ax
 
-	mov ax,word[es:di]
+	mov ah,byte[es:di]
 	cmp ah, 2      ;Check If there is a coin at pacmans tile
 	jne .skipeat            ;Eat
 	mov cx,7
 	mov fs,cx
 	mov ah, 0
-	mov word[es:di],0
-	call initbackground
+	mov byte[es:di],0
+
+	pop cx
+	pop bx
+	
+	mov ax,cx
+	mov cx,3200
+	mul cx
+	mov cx,ax
+	
+	mov ax,bx
+	mov bx,10
+	mul bx
+	mov bx,ax
+	
+	; set parameters for copybitmap
+	mov dx,0
+	add dx,bx
+	add dx,cx
+	mov di,dx
+	
+	mov si,EmptyBlock
+	mov dx,background
+	mov es,dx
+	mov cx,10
+	mov dx,10
+	call copybitmap
+	
+	jmp .return
 	
 	.skipeat:
-	pop ds
-	ret
+	pop cx
+	pop bx
+
 	
+	.return:
+		popa
+		pop ds
+		ret
 	
 copybitmap:
 	;PARAMETERS
