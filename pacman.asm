@@ -67,12 +67,16 @@ segment bitmaps data
 	MapRow17 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
 	MapRow18 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
 	MapRow19 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-	
+
 segment mydata data
 	oldintseg resw 1
 	oldintoff resw 1
 	oldvideomode resw 1
 	pressesc resw 1
+	pressw resw 1
+	pressa resw 1
+	presss resw 1
+	pressd resw 1
 	movedir resw 1
     pacmanloc resw 1
 	ghost1loc resw 1
@@ -112,38 +116,48 @@ KeybInt:
 	    jmp     .kbread
 .cminus:
 	    cmp 	al, 04Ah		; 4A is the 'make code' for keypad minus
-	    jne	.w
+	    jne	.wDown
 	    ;something here later
-
-.w:
-		cmp		al,11h
-		jne .a
-		mov bx,[movedir]
-		mov bx,320
-		neg bx
-		mov [movedir],bx
+		jmp 	.kbread
+		
+.wDown:	cmp		al,11h
+		jne .aDown
+		mov word[pressw],1
 		jmp .kbread
 		
-.a:		cmp		al,1Eh
-		jne .s
-		mov bx,[movedir]
-		mov bx,1
-		neg bx
-		mov [movedir],bx
+.aDown:	cmp		al,1Eh
+		jne .sDown
+		mov word[pressa],1
 		jmp .kbread
 
-.s		cmp		al,1Fh
-		jne .d
-		mov bx,[movedir]
-		mov bx,320
-		mov [movedir],bx
+.sDown	cmp		al,1Fh
+		jne .dDown
+		mov word[presss],1
+		jmp .kbread
+		
+.dDown	cmp		al,20h
+		jne .wUp
+		mov word[pressd],1
+		jmp .kbread
+		
+.wUp:	cmp		al,91h
+		jne .aUp
+		mov word[pressw],0
+		jmp .kbread
+		
+.aUp:	cmp		al,9Eh
+		jne .sUp
+		mov word[pressa],0
 		jmp .kbread
 
-.d		cmp		al,20h
+.sUp:	cmp		al,9Fh
+		jne .dUp
+		mov word[presss],0
+		jmp .kbread
+		
+.dUp:	cmp		al,0A0h
 		jne .kbread
-		mov bx,[movedir]
-		mov bx,1
-		mov [movedir],bx
+		mov word[pressd],0
 
 .kbread:
         in      al,61h          ; Send acknowledgment without
@@ -160,7 +174,6 @@ KeybInt:
 		
 
 copybackground:
-
 	push ds
 	pusha
 
@@ -181,17 +194,42 @@ copybackground:
 	pop ds
 	ret
 	
+copymemscreen:
+	push ds
+	pusha
+	
+	;Pointers
+	mov word si, 0
+	mov word di, 0
+	mov cx,64000
+
+	;Segment registers to correct locations
+	mov ax,videobase		; Destination segment
+	mov es,ax
+	mov ax,memscreen		; Source segment
+	mov ds,ax
+	;REPEAT COPY!
+	rep movsb				; Move byte at address ds:si to address es:di
+	popa
+	pop ds
+	ret	
+	
 drawPacman:
 	pusha
 	push cx
 	push dx
+	
 	mov ax,Pacman
-	mov si,ax
+	mov si,ax			; Source bitmap
+	
 	mov ax,memscreen
-	mov es,ax
-	mov cx,10
+	mov es,ax			; Target segment
+	
+	mov cx,10			; Size
 	mov dx,10
-	mov di,[pacmanloc]
+	
+	mov di,[pacmanloc]	; Target offset
+	
 	call copybitmap
 	pop dx
 	pop cx
@@ -249,25 +287,6 @@ drawGhost3:
 	popa
 	ret
 	
-copymemscreen:
-	push ds
-	pusha
-	;Pointers
-	mov word si, 0
-	mov word di, 0
-	mov cx,64000
-
-	;Segment registers to correct locations
-	mov ax,videobase		; Destination segment
-	mov es,ax
-	mov ax,memscreen		; Source segment
-	mov ds,ax
-	;REPEAT COPY!
-	rep movsb				; Move byte at address ds:si to address es:di
-	popa
-	pop ds
-	ret
-
 initbackground:
 	push ds
 	pusha
@@ -337,8 +356,7 @@ initbackground:
 
 ; eat:
 	; mov [ax + bl], 0
-	; ret
-
+	ret
 
 copybitmap:
 	;PARAMETERS
@@ -374,43 +392,110 @@ copybitmap:
 	pop ds
 	ret
 	
+checkInput:
+	push ax
+	push dx
+	
+	cmp word[pressw],1
+	je .pressedW
+	
+	cmp word[pressa],1
+	je .pressedA
+	
+	cmp word[presss],1
+	je .pressedS
+	
+	cmp word[pressd],1
+	je .pressedD
+	
+	jmp .return
+	
+	.pressedW:
+		mov ax,640
+		neg ax
+		jmp .checkifok
+		
+	.pressedA:
+		mov ax,2
+		neg ax
+		jmp .checkifok
+		
+	.pressedS:
+		mov ax,640
+		jmp .checkifok
+		
+	.pressedD:
+		mov ax,2
+
+	.checkifok:
+		call checkcollision
+		cmp dx,1
+		je .return				; not OK
+		mov [movedir],ax		; OK
+		
+	.return:
+		pop dx
+		pop ax
+		ret
+
 movePacman:
 	pusha
+	push dx
+	mov ax,[movedir]
 	call checkcollision
 	cmp dx,1
-	je .skip
+	je .collision
 	mov ax,[pacmanloc]
 	add ax,[movedir]
 	mov [pacmanloc],ax
+	jmp .skip
+	.collision:
+		mov word[movedir],0
 	.skip:
+		pop dx
 		popa
 		ret
 
 checkcollision:
-	mov dx, 0             ;Boolean collision is false
-
+	; Checks for collision
+	; Returns boolean to bx
+	push ax
+	push bx
+	push cx
+	
 	mov bx, [pacmanloc]      ;Check pacmans next movement
-	add bx, [movedir]
-
+	add bx,ax ;[movedir]
+	mov di,bx	;bx
+	
 	mov cx,memscreen
 	mov es,cx
-	mov di,bx
+	
 	mov bl,B
 	mov cx,10
 	mov dx,10
 	
 	call iscolour
 	
+	mov dx,0
 	cmp ax,0
-	je .nocollision
-	mov dx,1
-	ret
-	.nocollision:
-		mov dx,0
+	je .return
+
+	.collision:
+		mov dx, 1
+		
+	.return:
+		pop cx
+		pop bx
+		pop ax
 		ret
 		
 ; https://wiki.oulu.fi/pages/viewpage.action?title=PACMAN+-+Part+2
 iscolour:
+	; DI = Rect coordinate
+	; CX, DX = Rect width, height
+	; ES = Data segment to check in
+	; BL = Color to check
+	; AX = Return as pixel count
     PUSH DI
     PUSH CX
     PUSH DX
@@ -439,9 +524,9 @@ draw:
 	; Creates the image by layering
 	call copybackground				; Draw bg layer
 	call drawPacman					; Draw pacman
-	call drawGhost1
-	call drawGhost2
-	call drawGhost3
+	;call drawGhost1
+	;call drawGhost2
+	;call drawGhost3
 	call copymemscreen				; Show image
 	ret
 
@@ -480,8 +565,13 @@ draw:
 	mov word[ghost1loc],3350
 	mov word[ghost2loc],3370
 	mov word[ghost3loc],3390
+	mov word[pressw],0
+	mov word[pressa],0
+	mov word[presss],0
+	mov word[pressd],0
 	
 .mainloop:
+	call checkInput
 	call movePacman
 	call draw
 	cmp word [pressesc],1
@@ -503,15 +593,3 @@ draw:
 	mov	al, 0
 	mov ah, 4ch
 	int 21h
-.end
-
-    pusha
-    call checkcollision
-    cmp dx, 1
-    je .skip
-    mov ax,[pacmanloc]
-    add ax,[movedir]
-    mov [pacmanloc],ax
-    popa
-	.skip:
-    ret
