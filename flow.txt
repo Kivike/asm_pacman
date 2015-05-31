@@ -1,5 +1,0 @@
-INPUT ->
-	- Ota input sisälle
-	- Kirjoita mitä inputtia on annettu
-OUTPUT ->
-	- Piirrä kenttä
