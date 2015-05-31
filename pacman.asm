@@ -20,6 +20,7 @@ W		EQU 00001111b		;White
 H		EQU 00000111b		;Harmaa
 Y		EQU 00001110b		;Yellow
 T		EQU 11111111b		;Transparent
+J		EQU 11111110b		;Junction
 
 scrwidth EQU 320
 
@@ -44,28 +45,32 @@ segment bitmaps data
 
 	CoinBlock 	db T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
 	EmptyBlock 	db M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M
+	
+	CoinBlockJunction 	db J,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,Y,Y,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T
+	EmptyBlockJunction 	db J,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M,M
+
 	BlueBlock 	db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
 
-	Pacman 		db T,T,T,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,Y,Y,Y,T,T,Y,Y,Y,Y,Y,Y,Y,T,W,W,T,Y,Y,Y,Y,Y,T,W,T,R,W,T,Y,Y,Y,Y,T,W,T,T,W,T,Y,Y,Y,Y,Y,T,W,W,T,Y,Y,Y,T,Y,Y,Y,T,T,Y,Y,Y,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,T,T,T
+	Pacman 		db T,T,T,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,Y,Y,Y,M,M,Y,Y,Y,T,Y,Y,Y,M,W,W,M,Y,Y,Y,Y,Y,M,W,M,R,W,M,Y,Y,Y,Y,M,W,M,M,W,M,Y,Y,Y,Y,Y,M,W,W,M,Y,Y,Y,T,Y,Y,Y,M,M,Y,Y,Y,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,T,T,T
 	
 	MapRow1 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-	MapRow2 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
-	MapRow3 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow2 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,4,2,2,1
+	MapRow3 	db 1,2,1,4,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
 	MapRow4 	db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow5 	db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow5 	db 1,2,1,2,2,4,2,4,2,2,2,4,2,2,2,4,2,4,2,4,1
 	MapRow6 	db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
-	MapRow7 	db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow7 	db 1,2,1,2,2,4,1,4,2,4,2,4,2,2,1,2,2,4,1,2,1
 	MapRow8 	db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
-	MapRow9 	db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow9 	db 1,4,2,2,1,4,2,2,1,2,1,1,1,4,2,2,1,4,2,2,1
 	MapRow10 	db 1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1,2,1,1,1
-	MapRow11 	db 1,2,2,2,1,2,2,2,1,2,1,1,1,2,2,2,1,2,2,2,1
+	MapRow11 	db 1,4,2,2,1,4,2,2,1,2,1,1,1,4,2,2,1,4,2,2,1
 	MapRow12 	db 1,2,1,2,1,2,1,2,1,2,1,1,1,2,1,2,1,2,1,2,1
-	MapRow13 	db 1,2,1,2,2,2,1,2,2,2,2,2,2,2,1,2,2,2,1,2,1
+	MapRow13 	db 1,2,1,2,2,4,1,4,2,4,2,4,2,2,1,2,2,4,1,2,1
 	MapRow14 	db 1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1,2,1,2,1
-	MapRow15 	db 1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1
+	MapRow15 	db 1,2,1,2,2,4,2,4,2,2,2,4,2,2,2,4,2,4,2,4,1
 	MapRow16 	db 1,2,1,2,1,1,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow17 	db 1,2,1,2,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
-	MapRow18 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,2,2,2,1
+	MapRow17 	db 1,2,1,4,2,2,1,2,1,1,1,1,1,1,1,2,1,2,1,2,1
+	MapRow18 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,4,2,2,1
 	MapRow19 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 
 segment mydata data
@@ -330,6 +335,10 @@ initbackground:
 		je .setBlueBlock
 		cmp bl,2
 		je .setcoinblock
+		cmp bl, 3
+		je .setemptyblockJunction
+		cmp bl, 4
+		je .setcoinblockJunction
 		cmp bl,0
 		je .setemptyblock
 		
@@ -344,6 +353,13 @@ initbackground:
 		.setemptyblock:
 			mov bx,EmptyBlock
 			mov si,EmptyBlock
+		.setcoinblockJunction:
+			mov bx,CoinBlockJunction
+			mov si,CoinBlockJunction
+			jmp .drawblock
+		.setemptyblockJunction:
+			mov bx,EmptyBlockJunction
+			mov si,EmptyBlockJunction
 		.drawblock:
 			call copybitmap
 		
@@ -404,8 +420,45 @@ checkIfEatCoins:
 	mov ah,byte[es:di]
 	pop cx
 	pop bx
-	cmp ah, 2      ;Check If there is a coin at pacmans tile
-	jne .return           ;Eat
+
+	cmp ah, 2 		;Check if there is a coin at pacmans line
+	je .dofortwo
+	cmp ah, 4
+	jne .return
+
+	;;;DO JUNCTION
+	
+	mov ah, 0
+	mov byte[es:di],3
+
+	mov ax,cx
+	mov cx,3200
+	mul cx
+	mov cx,ax
+	
+	mov ax,bx
+	mov bx,10
+	mul bx
+	mov bx,ax
+	
+	; set parameters for copybitmap
+	mov dx,0
+	add dx,bx
+	add dx,cx
+	mov di,dx
+	
+	mov si,EmptyBlockJunction
+	mov dx,background
+	mov es,dx
+	mov cx,10
+	mov dx,10
+	call copybitmap
+	jmp .return
+
+
+	;;;DO STRAIGTH
+	.dofortwo:           ;Eat
+
 	mov ah, 0
 	mov byte[es:di],0
 
@@ -431,9 +484,7 @@ checkIfEatCoins:
 	mov cx,10
 	mov dx,10
 	call copybitmap
-	
-	jmp .return
-	
+		
 	.return:
 		popa
 		pop ds
@@ -533,15 +584,22 @@ movePacman:
 moveGhosts:
 	push ax
 	push dx
-	mov ax,[ghost1movedir]
-	
-	call checkcollisionghost
-	cmp dx,1
-	je .collision
-	mov ax,[ghost1loc]
-	add ax,[ghost1movedir]
-	mov [ghost1loc],ax
-	jmp .skip
+	mov ax, [ghost1movedir];
+
+	call checkjunctionghost
+	cmp dx, 0 				;if no junction hit
+	je .nojunction
+
+	call randomMovement
+
+	.nojunction:	
+		call checkcollisionghost
+		cmp dx,1
+		je .collision
+		mov ax,[ghost1loc]
+		add ax,[ghost1movedir]
+		mov [ghost1loc],ax
+		jmp .skip
 	.collision:
 		call randomMovement 
 	.skip:
@@ -568,22 +626,39 @@ randomMovement
 	je .moveright
 	ret
 
-	.moveup
-		mov ax, -1
-		mov word[ghost1movedir], ax
-		ret
-	.movedown
-		mov ax, 1
-		mov word[ghost1movedir], ax
-		ret
 	.moveleft
-		mov ax, 320
+		mov ax, 1					;Checks so it won't go back where it came from
+		cmp [ghost1movedir], ax
+		je .moveright
+
+		mov ax, -1					;Changes direction
 		mov word[ghost1movedir], ax
 		ret
 	.moveright
+		mov ax, -1
+		cmp [ghost1movedir], ax
+		je .moveleft
+
+		mov ax, 1
+		mov word[ghost1movedir], ax
+		ret
+	.movedown
+		mov ax, -320
+		cmp [ghost1movedir], ax
+		je .moveup
+
+		mov ax, 320
+		mov word[ghost1movedir], ax
+		ret
+	.moveup
+		mov ax, 320
+		cmp [ghost1movedir], ax
+		je .movedown
+
 		mov ax, -320
 		mov word[ghost1movedir], ax
 		ret
+
 
 checkcollision:
 	; Checks for collision
@@ -593,10 +668,10 @@ checkcollision:
 	push cx
 	
 	mov bx, [pacmanloc]      ;Check pacmans next movement
-	add bx,ax
-	mov di,bx	;bx
+	add bx,ax 				 ;Add move direction
+	mov di,bx
 	
-	mov cx,memscreen
+	mov cx,memscreen 
 	mov es,cx
 	
 	mov bl,B
@@ -643,7 +718,7 @@ checkcollisionghost:
 	push bx
 	push cx
 	
-	mov bx, [ghost1loc]      ;Check pacmans next movement
+	mov bx, [ghost1loc]      ;Save ghosts location
 	add bx,ax
 	mov di,bx	;bx
 	
@@ -663,6 +738,37 @@ checkcollisionghost:
 	.collision:
 		mov dx, 1	; collision
 
+	.return:
+		pop cx
+		pop bx
+		pop ax
+		ret
+
+checkjunctionghost:
+	; Checks for collision
+	; Returns boolean to dx
+	push ax
+	push bx
+	push cx
+	
+	mov bx, [ghost1loc]      ;Save ghosts location
+	mov di,bx				 ;Save ghosts location as offset
+	
+	mov cx,memscreen
+	mov es,cx
+
+	mov al, J
+	cmp byte[es:di], al 	;If ghost at junction
+	je .collision
+	
+	mov dx,0		; default = no collision
+	jmp .return
+
+	.collision:
+		mov dx, 1	; collision
+		mov ax, 10
+		mov fs, ax
+		
 	.return:
 		pop cx
 		pop bx
