@@ -95,7 +95,7 @@ segment mydata data
 	ghost3loc resw 1
 	ghost3movedir resw 1
 	
-	dotseaten resw 1
+	dotsleft resw 1
 	
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
@@ -256,55 +256,40 @@ drawPacman:
 	popa
 	ret
 
-drawGhost1:
-	pusha
-	push cx
-	push dx
-	mov ax,Ghost1
-	mov si,ax
-	mov ax,memscreen
-	mov es,ax
-	mov cx,10
-	mov dx,10
-	mov di,[ghost1loc]
-	call copybitmap
-	pop dx
-	pop cx
-	popa
-	ret
 
-drawGhost2:
-	pusha
-	push cx
-	push dx
-	mov ax,Ghost2
+drawGhosts:
+    ; Draws each ghost
+
+    pusha
+
+    ;Draw ghost 1
+    mov ax,Ghost1
+    mov di,[ghost1loc]
+    call drawGhost
+
+    ;Draw ghost 2
+    mov ax,Ghost2
+    mov di,[ghost2loc]
+    call drawGhost
+
+    ;Draw ghost 2
+    mov ax,Ghost3
+    mov di,[ghost3loc]
+    call drawGhost
+
+    popa
+    ret
+
+drawGhost:
+    ; ax = Ghost bitmap's memory start location
+    ; di = Ghost's location
+
 	mov si,ax
 	mov ax,memscreen
 	mov es,ax
 	mov cx,10
 	mov dx,10
-	mov di,[ghost2loc]
 	call copybitmap
-	pop dx
-	pop cx
-	popa
-	ret
-	
-drawGhost3:
-	pusha
-	push cx
-	push dx
-	mov ax,Ghost3
-	mov si,ax
-	mov ax,memscreen
-	mov es,ax
-	mov cx,10
-	mov dx,10
-	mov di,[ghost3loc]
-	call copybitmap
-	pop dx
-	pop cx
-	popa
 	ret
 	
 initbackground:
@@ -722,22 +707,15 @@ checkcollision:
 	
 	mov dx,0
 	cmp ax,0
-	je .checkforgreen
+	je .checkforred
 
 	mov dx, 1
 	jmp .return
 		
-    ; check collision with ghosts (colors green and red)
-    .checkforgreen:
+    ; check collision with ghosts (red colored)
+    .checkforred:
     mov cx,10
     mov dx,10
-    mov bl,G
-    call iscolour
-    cmp ax,0
-    je .checkforred
-    call dieloop
-
-    .checkforred:
     mov bl,R
     call iscolour
     cmp ax,0
@@ -857,9 +835,7 @@ draw:
 	; Creates the image to be shown on screen
 	call copybackground				; Draw bg layer
 	call drawPacman					; Draw pacman
-	call drawGhost1
-	call drawGhost2
-	call drawGhost3
+	call drawGhosts
 	
 	; Send image to screen
 	call copymemscreen
@@ -936,6 +912,8 @@ dieloop:
 	mov word[ghost1movedir], 320
     mov word[ghost2movedir], 320
     mov word[ghost3movedir], 320
+
+    mov word[dotsleft], 196
 	
 .mainloop:
 	call delayGame
