@@ -95,10 +95,8 @@ segment mydata data
 	ghost3loc resw 1
 	ghost3movedir resw 1
 
-	losetext db "Sorry, You lost!", 0xa ;Death string
-	wintext db "Congratulations, You won!", 0xa ;Win string
-	losetextlen equ     $ - losetext      ;length of our death string
-	wintextlen equ     $ - wintext      ;length of our win string
+	losetext db 13,10,'Sorry, You lost!',13,10,'$' ;Death string
+	wintext db 13,10,'Congratulations, You won!',13,10,'$' ;Win string
 
 	dotsleft resw 1
 	
@@ -943,18 +941,16 @@ dieloop:
 	mov word dx, [oldintoff]
 	mov word bx, [oldintseg]
 	mov ds,bx
-	mov al,9
-	mov ah,25h
+	mov al,02h
+	mov ah,06h
 	int 21h				;Vanhat arvot takas
 
-	mov dx, losetextlen ;Tekstin pituus
-	mov cx, losetext ;Teksti rekisteriin
-	mov bx, 1 ;STD
-	mov ax, 4 ;WRITE
-	int 80h ;Interrupt ja printtaa
+	;mov ax, mydata ;Asetetaan muistisegmentti
+	;mov ds, ax
+	;mov dx, losetext ;Teksti rekisteriin
+	;mov ah, 9
+	;int 21h ;Interrupt ja printtaa
 	
-	mov	al, 1
+	mov	al, 0
 	mov ah, 4ch
 	int 21h				;System exit
-
-
