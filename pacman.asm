@@ -94,14 +94,13 @@ segment mydata data
 	ghost2movedir resw 1
 	ghost3loc resw 1
 	ghost3movedir resw 1
-	
-	dotseaten resw 1
 
 	losetext db "Sorry, You lost!", 0xa ;Death string
 	wintext db "Congratulations, You won!", 0xa ;Win string
 	losetextlen equ     $ - losetext      ;length of our death string
 	wintextlen equ     $ - wintext      ;length of our win string
 
+	dotsleft resw 1
 	
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
@@ -262,55 +261,40 @@ drawPacman:
 	popa
 	ret
 
-drawGhost1:
-	pusha
-	push cx
-	push dx
-	mov ax,Ghost1
-	mov si,ax
-	mov ax,memscreen
-	mov es,ax
-	mov cx,10
-	mov dx,10
-	mov di,[ghost1loc]
-	call copybitmap
-	pop dx
-	pop cx
-	popa
-	ret
 
-drawGhost2:
-	pusha
-	push cx
-	push dx
-	mov ax,Ghost2
+drawGhosts:
+    ; Draws each ghost
+
+    pusha
+
+    ;Draw ghost 1
+    mov ax,Ghost1
+    mov di,[ghost1loc]
+    call drawGhost
+
+    ;Draw ghost 2
+    mov ax,Ghost2
+    mov di,[ghost2loc]
+    call drawGhost
+
+    ;Draw ghost 2
+    mov ax,Ghost3
+    mov di,[ghost3loc]
+    call drawGhost
+
+    popa
+    ret
+
+drawGhost:
+    ; ax = Ghost bitmap's memory start location
+    ; di = Ghost's location
+
 	mov si,ax
 	mov ax,memscreen
 	mov es,ax
 	mov cx,10
 	mov dx,10
-	mov di,[ghost2loc]
 	call copybitmap
-	pop dx
-	pop cx
-	popa
-	ret
-	
-drawGhost3:
-	pusha
-	push cx
-	push dx
-	mov ax,Ghost3
-	mov si,ax
-	mov ax,memscreen
-	mov es,ax
-	mov cx,10
-	mov dx,10
-	mov di,[ghost3loc]
-	call copybitmap
-	pop dx
-	pop cx
-	popa
 	ret
 	
 initbackground:
@@ -384,116 +368,116 @@ initbackground:
 	ret
 
 checkIfEatCoins:	
-	push ds
+    push ds
 	pusha
-	mov ax, [pacmanloc]
-	
-	;Get pacman's row
-	mov dx, 0
-	mov bx, 3200            
-	div bx
-	mov cx, ax 				;Put pacman's row to cx
+    mov ax, [pacmanloc]
 
-	mov ax, dx 				;Get modulo to ax
-	mov dx, 0
-	mov bx, 320             ;Get rows off from next modulo
-	div bx					; dx:ax/bx
-	mov ax, dx
+    ;Get pacman's row
+    mov dx, 0
+    mov bx, 3200            
+    div bx
+    mov cx, ax                 ;Put pacman's row to cx
 
-	
-	;Get pacman's column
-	mov dx, 0 				;Wont work without :D
-	mov bx, 10 				
-	div bx
-	mov bx, ax 				;Put pacman's column to bx
+    mov ax, dx                 ;Get modulo to ax
+    mov dx, 0
+    mov bx, 320             ;Get rows off from next modulo
+    div bx                    ; dx:ax/bx
+    mov ax, dx
 
-	push bx
-	push cx
-	
-	mov ax, cx 				;move rows to ax
-	mov cx, 21
-	mul cx                  ;multiply by columns in one row
+    ;Get pacman's column
+    mov dx, 0                 ;Wont work without :D
+    mov bx, 10                 
+    div bx
+    mov bx, ax                 ;Put pacman's column to bx
 
+    push bx
+    push cx
+    push ds
 
-	add ax, bx				;and add columns to get final point
+    mov ax, cx                 ;move rows to ax
+    mov cx, 21
+    mul cx                  ;multiply by columns in one row
 
-	mov bx,bitmaps
-	mov ds,bx
-	mov es,bx
-	add ax, MapRow1	
-	mov di,ax
+    add ax, bx              ;and add columns to get final point
 
-	mov ah,byte[es:di]
-	pop cx
-	pop bx
+    mov bx,bitmaps
+    mov ds,bx
+    mov es,bx
+    add ax,MapRow1
+    mov di,ax
 
-	cmp ah, 2 		;Check if there is a coin at pacmans line
-	je .dofortwo
-	cmp ah, 4
-	jne .return
+    mov ah,byte[es:di]
 
-	;;;DO JUNCTION
-	
-	mov ah, 0
-	mov byte[es:di],3 	;Turn junction with coin into junction with no coin
+    pop ds
+    pop cx
+    pop bx
 
-	mov ax,cx
-	mov cx,3200
-	mul cx 				;Multiply square number with pixels to get upper corner pixel.
-	mov cx,ax
-	
-	mov ax,bx
-	mov bx,10
-	mul bx
-	mov bx,ax
-	
-	; set parameters for copybitmap
-	mov dx,0
-	add dx,bx
-	add dx,cx
-	mov di,dx
-	
-	mov si,EmptyBlockJunction 	;Draw the sprite for an empty junction
-	mov dx,background
-	mov es,dx
-	mov cx,10
-	mov dx,10
-	call copybitmap
-	jmp .return
+    cmp ah, 2         ;Check if there is a coin at pacmans line
+    je .eatNormalCoin
+    cmp ah, 4
+    jne .return
+
+    ; EAT COIN ON JUNCTION BLOCK
+        call .eatCoin
+        jmp .setEmptyJunctionBlock
 
 
-	;;;DO STRAIGTH
-	.dofortwo:           ;Eat
+    ; EAT COIN ON NORMAL BLOCK
+    .eatNormalCoin:
+        call .eatCoin
+        jmp .setEmptyNormalBlock
 
-	mov ah, 0
-	mov byte[es:di],0 	;Turn straight with coin into straight with no coin
+    .eatCoin:
+        ; Reduce amount of dots left
+        ; If 0 left, player wins
+        push cx
+        mov cx,[dotsleft]
+        dec cx
+        jz .victory
 
-	mov ax,cx
-	mov cx,3200
-	mul cx 				;Multiply square number with pixels to get upper corner pixel.
-	mov cx,ax
-	
-	mov ax,bx
-	mov bx,10
-	mul bx
-	mov bx,ax
-	
-	; set parameters for copybitmap
-	mov dx,0
-	add dx,bx
-	add dx,cx
-	mov di,dx
-	
-	mov si,EmptyBlock 	;Draw the sprite for an empty block
-	mov dx,background
-	mov es,dx
-	mov cx,10
-	mov dx,10
-	call copybitmap
-		
-	.return:
-		popa
-		pop ds
+        mov [dotsleft],cx
+        pop cx
+        ret
+
+    .victory:
+        call dieloop
+
+    .setEmptyJunctionBlock:
+        mov byte[es:di],3    ; 3 = empty junction block
+        mov si,EmptyBlockJunction
+        jmp .updateBgBitmap
+
+    .setEmptyNormalBlock:
+        mov byte[es:di],0    ; 0 = empty normal block
+        mov si,EmptyBlock
+        jmp .updateBgBitmap
+
+    .updateBgBitmap:
+        mov ax,cx
+        mov cx,3200
+        mul cx
+        mov cx,ax
+        
+        mov ax,bx
+        mov bx,10
+        mul bx
+        mov bx,ax
+
+        mov dx,0
+        add dx,bx
+        add dx,cx
+        mov di,dx
+
+        mov dx,background
+        mov es,dx
+        mov cx,10
+        mov dx,10
+        call copybitmap
+        jmp .return
+
+    .return:
+        popa
+        pop ds
 		ret
 	
 copybitmap:
@@ -712,6 +696,7 @@ checkcollision:
 	push ax
 	push bx
 	push cx
+    push di
 	
 	mov bx, [pacmanloc]      ;Check pacmans next movement
 	add bx,ax 				 ;Add move direction
@@ -728,22 +713,15 @@ checkcollision:
 	
 	mov dx,0
 	cmp ax,0
-	je .checkforgreen
+	je .checkforred
 
 	mov dx, 1
 	jmp .return
 		
-    ; check collision with ghosts (colors green and red)
-    .checkforgreen:
+    ; check collision with ghosts (red colored)
+    .checkforred:
     mov cx,10
     mov dx,10
-    mov bl,G
-    call iscolour
-    cmp ax,0
-    je .checkforred
-    call die
-
-    .checkforred:
     mov bl,R
     call iscolour
     cmp ax,0
@@ -752,6 +730,7 @@ checkcollision:
 
 	 
 	.return:
+        pop di
 		pop cx
 		pop bx
 		pop ax
@@ -863,9 +842,7 @@ draw:
 	; Creates the image to be shown on screen
 	call copybackground				; Draw bg layer
 	call drawPacman					; Draw pacman
-	call drawGhost1
-	call drawGhost2
-	call drawGhost3
+	call drawGhosts
 	
 	; Send image to screen
 	call copymemscreen
@@ -945,6 +922,8 @@ dieloop:
 	mov word[ghost1movedir], 320
     mov word[ghost2movedir], 320
     mov word[ghost3movedir], 320
+
+    mov word[dotsleft], 177
 	
 .mainloop:
 	call delayGame
