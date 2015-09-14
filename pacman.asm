@@ -363,116 +363,110 @@ initbackground:
 	ret
 
 checkIfEatCoins:	
-	push ds
 	pusha
-	mov ax, [pacmanloc]
-	
-	;Get pacman's row
-	mov dx, 0
-	mov bx, 3200            
-	div bx
-	mov cx, ax 				;Put pacman's row to cx
+    mov ax, [pacmanloc]
+    
+    ;Get pacman's row
+    mov dx, 0
+    mov bx, 3200            
+    div bx
+    mov cx, ax                 ;Put pacman's row to cx
 
-	mov ax, dx 				;Get modulo to ax
-	mov dx, 0
-	mov bx, 320             ;Get rows off from next modulo
-	div bx					; dx:ax/bx
-	mov ax, dx
+    mov ax, dx                 ;Get modulo to ax
+    mov dx, 0
+    mov bx, 320             ;Get rows off from next modulo
+    div bx                    ; dx:ax/bx
+    mov ax, dx
 
-	
-	;Get pacman's column
-	mov dx, 0 				;Wont work without :D
-	mov bx, 10 				
-	div bx
-	mov bx, ax 				;Put pacman's column to bx
+    
+    ;Get pacman's column
+    mov dx, 0                 ;Wont work without :D
+    mov bx, 10                 
+    div bx
+    mov bx, ax                 ;Put pacman's column to bx
 
-	push bx
-	push cx
-	
-	mov ax, cx 				;move rows to ax
-	mov cx, 21
-	mul cx                  ;multiply by columns in one row
+    push bx
+    push cx
+    
+    mov ax, cx                 ;move rows to ax
+    mov cx, 21
+    mul cx                  ;multiply by columns in one row
 
+    add ax, bx                ;and add columns to get final point
 
-	add ax, bx				;and add columns to get final point
+    mov bx,bitmaps
+    mov ds,bx
+    mov es,bx
+    add ax, MapRow1    
+    mov di,ax
 
-	mov bx,bitmaps
-	mov ds,bx
-	mov es,bx
-	add ax, MapRow1	
-	mov di,ax
+    mov ah,byte[es:di]
 
-	mov ah,byte[es:di]
-	pop cx
-	pop bx
+    pop cx
+    pop bx
 
-	cmp ah, 2 		;Check if there is a coin at pacmans line
-	je .dofortwo
-	cmp ah, 4
-	jne .return
+    cmp ah, 2         ;Check if there is a coin at pacmans line
+    je .eatNormalCoin
+    cmp ah, 4
+    jne .return
 
-	;;;DO JUNCTION
-	
-	mov ah, 0
-	mov byte[es:di],3
+    ; EAT COIN ON JUNCTION BLOCK
+    mov ah, 0
+    mov byte[es:di],3
 
-	mov ax,cx
-	mov cx,3200
-	mul cx
-	mov cx,ax
-	
-	mov ax,bx
-	mov bx,10
-	mul bx
-	mov bx,ax
-	
-	; set parameters for copybitmap
-	mov dx,0
-	add dx,bx
-	add dx,cx
-	mov di,dx
-	
-	mov si,EmptyBlockJunction
-	mov dx,background
-	mov es,dx
-	mov cx,10
-	mov dx,10
-	call copybitmap
-	jmp .return
+    mov ax,cx
+    mov cx,3200
+    mul cx
+    mov cx,ax
+    
+    mov ax,bx
+    mov bx,10
+    mul bx
+    mov bx,ax
+    
+    jmp .setEmptyJunctionBlock
 
+    ; EAT COIN ON NORMAL BLOCK
+    .eatNormalCoin:
 
-	;;;DO STRAIGTH
-	.dofortwo:           ;Eat
+    mov ah, 0
+    mov byte[es:di],0
 
-	mov ah, 0
-	mov byte[es:di],0
+    mov ax,cx
+    mov cx,3200
+    mul cx
+    mov cx,ax
+    
+    mov ax,bx
+    mov bx,10
+    mul bx
+    mov bx,ax
 
-	mov ax,cx
-	mov cx,3200
-	mul cx
-	mov cx,ax
-	
-	mov ax,bx
-	mov bx,10
-	mul bx
-	mov bx,ax
-	
-	; set parameters for copybitmap
-	mov dx,0
-	add dx,bx
-	add dx,cx
-	mov di,dx
-	
-	mov si,EmptyBlock
-	mov dx,background
-	mov es,dx
-	mov cx,10
-	mov dx,10
-	call copybitmap
-		
-	.return:
-		popa
-		pop ds
+    jmp .setEmptyNormalBlock
+
+    .setEmptyJunctionBlock:
+        mov si,EmptyBlockJunction
+        jmp .updateBgBitmap
+
+    .setEmptyNormalBlock:
+        mov si,EmptyBlock
+        jmp .updateBgBitmap
+
+    .updateBgBitmap:
+        mov dx,0
+        add dx,bx
+        add dx,cx
+        mov di,dx
+
+        mov dx,background
+        mov es,dx
+        mov cx,10
+        mov dx,10
+        call copybitmap
+        jmp .return
+
+    .return:
+        popa
 		ret
 	
 copybitmap:
