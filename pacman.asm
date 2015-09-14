@@ -51,7 +51,7 @@ segment bitmaps data
 
 	BlueBlock 	db B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B
 
-	Pacman 		db T,T,T,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,Y,Y,Y,M,M,Y,Y,Y,T,Y,Y,Y,M,W,W,M,Y,Y,Y,Y,Y,M,W,M,R,W,M,Y,Y,Y,Y,M,W,M,M,W,M,Y,Y,Y,Y,Y,M,W,W,M,Y,Y,Y,T,Y,Y,Y,M,M,Y,Y,Y,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,T,T,T
+	Pacman 		db T,T,T,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,Y,Y,Y,M,M,Y,Y,Y,T,Y,Y,Y,M,W,W,M,Y,Y,Y,Y,Y,M,W,M,Y,W,M,Y,Y,Y,Y,M,W,M,M,W,M,Y,Y,Y,Y,Y,M,W,W,M,Y,Y,Y,T,Y,Y,Y,M,M,Y,Y,Y,T,T,T,Y,Y,Y,Y,Y,Y,T,T,T,T,T,Y,Y,Y,Y,T,T,T
 	
 	MapRow1 	db 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 	MapRow2 	db 1,2,2,2,1,2,2,2,1,1,1,1,1,1,1,2,2,4,2,2,1
@@ -582,32 +582,67 @@ movePacman:
 		ret
 
 moveGhosts:
-	push ax
-	push dx
-	mov ax, [ghost1movedir];
+    ; Move all ghosts
+    push si
+    push di
 
-	call checkjunctionghost
-	cmp dx, 0 				;if no junction hit
-	je .nojunction
+	mov si, ghost1loc
+    mov di, ghost1movedir
+    call moveGhost
 
-	call randomMovement
+    mov si, ghost2loc
+    mov di, ghost2movedir
+    call moveGhost
 
-	.nojunction:	
-		call checkcollisionghost
-		cmp dx,1
-		je .collision
-		mov ax,[ghost1loc]
-		add ax,[ghost1movedir]
-		mov [ghost1loc],ax
-		jmp .skip
-	.collision:
-		call randomMovement 
-	.skip:
-		pop dx
-		pop ax
-		ret
+    mov si, ghost3loc
+    mov di, ghost3movedir
+    call moveGhost
 
-randomMovement
+    pop di
+    pop si
+    ret
+
+
+moveGhost:
+    ; si = ghost location's memory address
+    ; di = ghost direction's memory address
+    ; Moves ghost towards its direction. If ghost collides, new direction is randomized.
+
+    push ax
+    push dx
+    mov ax, cx;
+
+    call checkjunctionghost
+    cmp dx, 0                 ;if no junction hit
+    je .nojunction
+
+    call randomMovement
+
+    .nojunction:
+        call checkcollisionghost
+        cmp dx,1
+        je .collision
+        mov ax,[si]
+
+        push dx
+        mov dx, [di]
+        add ax, dx
+        mov [si],ax
+        pop dx
+        jmp .skip
+    .collision:
+        call randomMovement
+    .skip:
+        pop dx
+        pop ax
+        ret
+
+randomMovement:
+    ; Select random movement direction to a ghost
+    ; di = ghost move direction memory address
+
+    pusha
+
 	mov ah, 2CH 	;get system time
 	int 21h
 
@@ -624,40 +659,45 @@ randomMovement
 	je .moveleft
 	cmp ah, 3
 	je .moveright
-	ret
 
-	.moveleft
+	jmp .return
+
+	.moveleft:
 		mov ax, 1					;Checks so it won't go back where it came from
-		cmp [ghost1movedir], ax
+		cmp [di], ax
 		je .moveright
 
 		mov ax, -1					;Changes direction
-		mov word[ghost1movedir], ax
-		ret
-	.moveright
+		mov word[di], ax
+		jmp .return
+	.moveright:
 		mov ax, -1
-		cmp [ghost1movedir], ax
+		cmp [di], ax
 		je .moveleft
 
 		mov ax, 1
-		mov word[ghost1movedir], ax
-		ret
-	.movedown
+		mov word[di], ax
+		jmp .return
+	.movedown:
 		mov ax, -320
-		cmp [ghost1movedir], ax
+		cmp [di], ax
 		je .moveup
 
 		mov ax, 320
-		mov word[ghost1movedir], ax
-		ret
-	.moveup
+		mov word[di], ax
+		jmp .return
+	.moveup:
 		mov ax, 320
-		cmp [ghost1movedir], ax
+		cmp [di], ax
 		je .movedown
 
 		mov ax, -320
-		mov word[ghost1movedir], ax
-		ret
+		mov word[di], ax
+		jmp .return
+
+    .return:
+        popa
+        ret
 
 
 checkcollision:
@@ -687,23 +727,23 @@ checkcollision:
 	mov dx, 1
 	jmp .return
 		
+    ; check collision with ghosts (colors green and red)
+    .checkforgreen:
+    mov cx,10
+    mov dx,10
+    mov bl,G
+    call iscolour
+    cmp ax,0
+    je .checkforred
+    call dieloop
 
-	 ; check collision with ghosts (colors green and red)
-	 .checkforgreen:
-	 mov cx,10
-	 mov dx,10
-	 mov bl,G
-	 call iscolour
-	 cmp ax,0
-	 je .checkforred
-	 ; ################### DIE HERE #######################
-	
-	 .checkforred:
-	 mov bl,R
-	 call iscolour
-	 cmp ax,0
-	 je .return
-	 ; ################### DIE HERE #######################
+    .checkforred:
+    mov bl,R
+    call iscolour
+    cmp ax,0
+    je .return
+    call dieloop
+
 	 
 	.return:
 		pop cx
@@ -711,16 +751,20 @@ checkcollision:
 		pop ax
 		ret
 
+
 checkcollisionghost:
 	; Checks for collision
+    ; si = location to check
 	; Returns boolean to dx
 	push ax
 	push bx
 	push cx
+    push di
 	
-	mov bx, [ghost1loc]      ;Save ghosts location
+	mov bx, [si]      ;Save ghosts location
+    mov ax, [di]
 	add bx,ax
-	mov di,bx	;bx
+	mov di,bx
 	
 	mov cx,memscreen
 	mov es,cx
@@ -739,6 +783,7 @@ checkcollisionghost:
 		mov dx, 1	; collision
 
 	.return:
+        pop di
 		pop cx
 		pop bx
 		pop ax
@@ -750,8 +795,9 @@ checkjunctionghost:
 	push ax
 	push bx
 	push cx
+    push di
 	
-	mov bx, [ghost1loc]      ;Save ghosts location
+	mov bx, [si]      ;Save ghosts location
 	mov di,bx				 ;Save ghosts location as offset
 	
 	mov cx,memscreen
@@ -770,6 +816,7 @@ checkjunctionghost:
 		mov fs, ax
 		
 	.return:
+        pop di
 		pop cx
 		pop bx
 		pop ax
@@ -811,8 +858,8 @@ draw:
 	call copybackground				; Draw bg layer
 	call drawPacman					; Draw pacman
 	call drawGhost1
-	;call drawGhost2
-	;call drawGhost3
+	call drawGhost2
+	call drawGhost3
 	
 	; Send image to screen
 	call copymemscreen
@@ -843,6 +890,11 @@ delayGame:
 		dec dx
 		jne .pause1
 	ret
+
+dieloop:
+    inc ax
+    call delayGame
+    jmp dieloop
 
 ..start:
 	mov ax, mydata
@@ -882,6 +934,8 @@ delayGame:
 
 	mov word[delay],5
 	mov word[ghost1movedir], 320
+    mov word[ghost2movedir], 320
+    mov word[ghost3movedir], 320
 	
 .mainloop:
 	call delayGame
@@ -891,7 +945,7 @@ delayGame:
 	call draw
 	cmp word [pressesc],1
 	jne .mainloop
-	
+
 .dosexit:
 	mov word dx, [oldintoff]
 	mov word bx, [oldintseg]
