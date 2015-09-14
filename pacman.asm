@@ -363,9 +363,10 @@ initbackground:
 	ret
 
 checkIfEatCoins:	
+    push ds
 	pusha
     mov ax, [pacmanloc]
-    
+
     ;Get pacman's row
     mov dx, 0
     mov bx, 3200            
@@ -378,7 +379,6 @@ checkIfEatCoins:
     div bx                    ; dx:ax/bx
     mov ax, dx
 
-    
     ;Get pacman's column
     mov dx, 0                 ;Wont work without :D
     mov bx, 10                 
@@ -387,21 +387,23 @@ checkIfEatCoins:
 
     push bx
     push cx
-    
+    push ds
+
     mov ax, cx                 ;move rows to ax
     mov cx, 21
     mul cx                  ;multiply by columns in one row
 
-    add ax, bx                ;and add columns to get final point
+    add ax, bx              ;and add columns to get final point
 
     mov bx,bitmaps
     mov ds,bx
     mov es,bx
-    add ax, MapRow1    
+    add ax,MapRow1
     mov di,ax
 
     mov ah,byte[es:di]
 
+    pop ds
     pop cx
     pop bx
 
@@ -411,48 +413,51 @@ checkIfEatCoins:
     jne .return
 
     ; EAT COIN ON JUNCTION BLOCK
-    mov ah, 0
-    mov byte[es:di],3
-
-    mov ax,cx
-    mov cx,3200
-    mul cx
-    mov cx,ax
-    
-    mov ax,bx
-    mov bx,10
-    mul bx
-    mov bx,ax
-    
-    jmp .setEmptyJunctionBlock
+        call .eatCoin
+        jmp .setEmptyJunctionBlock
 
     ; EAT COIN ON NORMAL BLOCK
     .eatNormalCoin:
+        call .eatCoin
+        jmp .setEmptyNormalBlock
 
-    mov ah, 0
-    mov byte[es:di],0
 
-    mov ax,cx
-    mov cx,3200
-    mul cx
-    mov cx,ax
-    
-    mov ax,bx
-    mov bx,10
-    mul bx
-    mov bx,ax
+    .eatCoin:
+        ; Reduce amount of dots left
+        ; If 0 left, player wins
+        push cx
+        mov cx,[dotsleft]
+        dec cx
+        jz .victory
 
-    jmp .setEmptyNormalBlock
+        mov [dotsleft],cx
+        pop cx
+        ret
+
+    .victory:
+        call dieloop
 
     .setEmptyJunctionBlock:
+        mov byte[es:di],3    ; 3 = empty junction block
         mov si,EmptyBlockJunction
         jmp .updateBgBitmap
 
     .setEmptyNormalBlock:
+        mov byte[es:di],0    ; 0 = empty normal block
         mov si,EmptyBlock
         jmp .updateBgBitmap
 
     .updateBgBitmap:
+        mov ax,cx
+        mov cx,3200
+        mul cx
+        mov cx,ax
+        
+        mov ax,bx
+        mov bx,10
+        mul bx
+        mov bx,ax
+
         mov dx,0
         add dx,bx
         add dx,cx
@@ -467,6 +472,7 @@ checkIfEatCoins:
 
     .return:
         popa
+        pop ds
 		ret
 	
 copybitmap:
@@ -685,6 +691,7 @@ checkcollision:
 	push ax
 	push bx
 	push cx
+    push di
 	
 	mov bx, [pacmanloc]      ;Check pacmans next movement
 	add bx,ax 				 ;Add move direction
@@ -718,6 +725,7 @@ checkcollision:
 
 	 
 	.return:
+        pop di
 		pop cx
 		pop bx
 		pop ax
@@ -907,7 +915,7 @@ dieloop:
     mov word[ghost2movedir], 320
     mov word[ghost3movedir], 320
 
-    mov word[dotsleft], 196
+    mov word[dotsleft], 177
 	
 .mainloop:
 	call delayGame
