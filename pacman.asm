@@ -96,6 +96,12 @@ segment mydata data
 	ghost3movedir resw 1
 	
 	dotseaten resw 1
+
+	losetext db "Sorry, You lost!", 0xa ;Death string
+	wintext db "Congratulations, You won!", 0xa ;Win string
+	losetextlen equ     $ - losetext      ;length of our death string
+	wintextlen equ     $ - wintext      ;length of our win string
+
 	
 ;;;;;;;;;;;;;;
 ; The code segment - YOUR CODE HERE
@@ -429,11 +435,11 @@ checkIfEatCoins:
 	;;;DO JUNCTION
 	
 	mov ah, 0
-	mov byte[es:di],3
+	mov byte[es:di],3 	;Turn junction with coin into junction with no coin
 
 	mov ax,cx
 	mov cx,3200
-	mul cx
+	mul cx 				;Multiply square number with pixels to get upper corner pixel.
 	mov cx,ax
 	
 	mov ax,bx
@@ -447,7 +453,7 @@ checkIfEatCoins:
 	add dx,cx
 	mov di,dx
 	
-	mov si,EmptyBlockJunction
+	mov si,EmptyBlockJunction 	;Draw the sprite for an empty junction
 	mov dx,background
 	mov es,dx
 	mov cx,10
@@ -460,11 +466,11 @@ checkIfEatCoins:
 	.dofortwo:           ;Eat
 
 	mov ah, 0
-	mov byte[es:di],0
+	mov byte[es:di],0 	;Turn straight with coin into straight with no coin
 
 	mov ax,cx
 	mov cx,3200
-	mul cx
+	mul cx 				;Multiply square number with pixels to get upper corner pixel.
 	mov cx,ax
 	
 	mov ax,bx
@@ -478,7 +484,7 @@ checkIfEatCoins:
 	add dx,cx
 	mov di,dx
 	
-	mov si,EmptyBlock
+	mov si,EmptyBlock 	;Draw the sprite for an empty block
 	mov dx,background
 	mov es,dx
 	mov cx,10
@@ -735,14 +741,14 @@ checkcollision:
     call iscolour
     cmp ax,0
     je .checkforred
-    call dieloop
+    call die
 
     .checkforred:
     mov bl,R
     call iscolour
     cmp ax,0
     je .return
-    call dieloop
+    call die
 
 	 
 	.return:
@@ -891,10 +897,13 @@ delayGame:
 		jne .pause1
 	ret
 
+die:
+	mov cx, 10
 dieloop:
-    inc ax
     call delayGame
-    jmp dieloop
+    jnz dieloop
+    mov bx, 0
+    jmp .dosexit
 
 ..start:
 	mov ax, mydata
@@ -947,18 +956,26 @@ dieloop:
 	jne .mainloop
 
 .dosexit:
+	mov word dx, [oldvideomode]
+	mov ah,00h
+	mov al,13h
+	int 10h				;Vanha videomode takas
+
 	mov word dx, [oldintoff]
 	mov word bx, [oldintseg]
 	mov ds,bx
 	mov al,9
 	mov ah,25h
 	int 21h				;Vanhat arvot takas
+
+	mov dx, losetextlen ;Tekstin pituus
+	mov cx, losetext ;Teksti rekisteriin
+	mov bx, 1 ;STD
+	mov ax, 4 ;WRITE
+	int 80h ;Interrupt ja printtaa
 	
-	mov word dx, [oldvideomode]
-	mov ah,00h
-	mov al,13h
-	int 10h				;Vanha videomode takas
-	
-	mov	al, 0
+	mov	al, 1
 	mov ah, 4ch
-	int 21h
+	int 21h				;System exit
+
+
