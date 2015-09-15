@@ -431,6 +431,7 @@ checkIfEatCoins:
         push cx
         mov cx,[dotsleft]
         dec cx
+
         jz .victory
 
         mov [dotsleft],cx
@@ -438,7 +439,7 @@ checkIfEatCoins:
         ret
 
     .victory:
-        call dieloop
+        call win
 
     .setEmptyJunctionBlock:
         mov byte[es:di],3    ; 3 = empty junction block
@@ -873,11 +874,16 @@ delayGame:
 	ret
 
 die:
-	mov cx, 10
-dieloop:
+	mov cx, 1000
+	mov bx, 0
+	jmp endgameloop
+win:
+	mov cx, 1000
+	mov bx, 1
+
+endgameloop:
     call delayGame
-    jnz dieloop
-    mov bx, 0
+    jnz endgameloop 
     jmp .dosexit
 
 ..start:
@@ -938,18 +944,27 @@ dieloop:
 	mov al,13h
 	int 10h				;Vanha videomode takas
 
+	mov ax, mydata ;Asetetaan muistisegmentti
+	mov ds, ax
+
+	mov ax, bx 
+	cmp ax, 1 ;Katsotaan onko voittanut
+	je .win ;Jos on hyppää voittoon
+.lose
+	mov dx, losetext ;Teksti rekisteriin
+	jmp .continue
+.win
+	mov dx, wintext ;Teksti rekisteriin
+.continue
+	mov ah, 9
+	int 21h ;Interrupt ja printtaa
+
 	mov word dx, [oldintoff]
 	mov word bx, [oldintseg]
 	mov ds,bx
-	mov al,02h
-	mov ah,06h
+	mov al,09h
+	mov ah,25h
 	int 21h				;Vanhat arvot takas
-
-	;mov ax, mydata ;Asetetaan muistisegmentti
-	;mov ds, ax
-	;mov dx, losetext ;Teksti rekisteriin
-	;mov ah, 9
-	;int 21h ;Interrupt ja printtaa
 	
 	mov	al, 0
 	mov ah, 4ch
